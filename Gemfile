@@ -42,28 +42,28 @@ gem "devise"
 gem "devise-jwt"
 
 # Helps control which data is returned in JSON responses
-gem 'active_model_serializers'
+gem "active_model_serializers"
 
 # A system for running background jobs (e.g. sending emails, processing data)
-gem 'sidekiq'
+gem "sidekiq"
 
 # In-memory key-value database (used as a cache or fast data store)
-gem 'redis'
+gem "redis"
 
 group :development, :test do
   # Replaces the default Minitest framework with RSpec (more popular and flexible testing framework)
-  gem 'rspec-rails'
+  gem "rspec-rails"
 
   # Tool for generating test data (replacement for fixtures)
-  gem 'factory_bot_rails'
+  gem "factory_bot_rails"
 
   # Generates fake realistic data (names, addresses, emails, phone numbers)
-  gem 'faker'
+  gem "faker"
 end
 
 group :development do
   # Captures sent emails and opens them in a browser instead of sending them
-  gem 'letter_opener'
+  gem "letter_opener"
 end
 
 
