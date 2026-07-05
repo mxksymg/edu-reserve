@@ -38,6 +38,8 @@ gem "image_processing", "~> 1.2"
 # Complete solution for user authentication and registration
 gem "devise"
 
+gem "jwt"
+
 # Adds JSON Web Token (JWT) support to Devise
 gem "devise-jwt"
 
@@ -65,11 +67,6 @@ group :development do
   # Captures sent emails and opens them in a browser instead of sending them
   gem "letter_opener"
 end
-
-
-
-
-
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

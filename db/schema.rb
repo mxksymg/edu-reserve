@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_03_213354) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_04_142258) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -41,6 +41,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_03_213354) do
     t.string "token"
     t.datetime "updated_at", null: false
     t.index ["school_id"], name: "index_invitations_on_school_id"
+  end
+
+  create_table "jwt_blacklists", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "exp"
+    t.string "jti"
+    t.datetime "updated_at", null: false
   end
 
   create_table "reservations", force: :cascade do |t|
@@ -78,15 +85,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_03_213354) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "active"
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.string "first_name"
+    t.datetime "invitation_accepted_at"
+    t.datetime "invitation_sent_at"
+    t.string "invitation_token"
+    t.string "last_name"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.integer "role"
+    t.bigint "school_id"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["school_id"], name: "index_users_on_school_id"
   end
 
   add_foreign_key "courses", "schools"
@@ -96,4 +112,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_03_213354) do
   add_foreign_key "reservations", "users"
   add_foreign_key "schedules", "courses"
   add_foreign_key "schedules", "users", column: "teacher_id"
+  add_foreign_key "users", "schools"
 end

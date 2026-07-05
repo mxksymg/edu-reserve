@@ -26,8 +26,9 @@ test:
   password: your_password
   host: localhost
 7. sudo service postgresql start
-8. rails s - to start server and check if works
+8. rails s - to start server and check if works (shortcut from rails server)
 9. Open Gemfile and make sure you have this gems there
+gem 'jwt'
 # Adds JSON Web Token (JWT) support to Devise
 gem "devise-jwt"
 
@@ -55,9 +56,9 @@ group :development do
   # Captures sent emails and opens them in a browser instead of sending them
   gem 'letter_opener'
 end
-10. bundle install - installs all gems/libraries listed in the 'Gemfile'
+10. bundle install - installs all gems/libraries listed in the 'Gemfile' and creates file Gemfile.lock
 11. rails g devise:install - installs and configures Devise in your Rails application.
-12. rails g devise:views - customizes the login and registration forms.
+12. rails g devise:views - customizes the login and registration forms (optional)
 13. rails g devise User - creates model and migration
 
 Now the main logic of the app.
@@ -82,13 +83,18 @@ rails db:migrate
 'school_id:references' - creates a school_id column of type integer and automatically adds an index and a foreign key constraint referencing the schools table.
 'invitation_token:string' - stores a unique invitation token.
 'active:boolean' - stores a Boolean value (true or false) with the default set to false for invited users.
+If error, change in db/migrate ......._add_fields_to_users.rb modyfiy this line to add_reference :users, :school, foreign_key: true
+and run rails db:migrate again 
 15. rails db:migrate - runs all pending migrations, updating the database schema based on the migration files located in the db/migrate/ directory.
 16. rails g model School name:string address:text description:text
 17. rails db:migrate
 18. rails g model Class
 19. rails g migration AddContactFieldsToSchools phone:string email:string website:string
+rails db:migrate
 'AddContactFieldsToSchools' - add exta fields to table School
-19. rails g model Class name:string description:text category:string level:string age_group:string duration:integer price:decimal school:references teacher:references max_students:integer     !!!Class!!! - this is incorrect because Class is key word used by Ruby (use Course instead) ...model Course ...
+19. rails g model Class name:string description:text category:string level:string age_group:string duration:integer price:decimal school:references teacher:references max_students:integer     
+rails db:migrate
+!!!Class!!! - this is incorrect because Class is key word used by Ruby (use Course instead) ...model Course ...
 20. rails g model Schedule weekday:integer start_time:time end_time:time room:string course:references teacher:references
 21. rails db:migrate - if  ERROR:  relation "teachers" does not exist, change in db/migrate/20260703154048_create_schedules.rb
 for t.references :teacher, null: false, foreign_key: { to_table: :users }
@@ -105,3 +111,115 @@ Course.count
 Schedule.count
 Reservation.count
 Invitation.count
+25. Creating the JwtBlacklist model to keep track of which JWT tokens are still valid and which have been revoked
+rails generate model JwtBlacklist jti:string exp:datetime
+rails db:migrate
+26. In app/models/user.rb add this line in devise - :jwt_authenticatable, jwt_revocation_strategy: JwtBlacklist
+27. In app/models/jwt_blacklist.rb add include Devise::JWT::RevocationStrategies::Denylist inside class JwtBlacklist
+Here I got some troubles. I have no clue what to put after RevocationStrategies::. I was using Blacklist instead of Denylist, because when i ask AI
+it gives me Blacklist, which is wrong. Based on versions of jwt key words are changing. To serach for current vocabulary use this command
+Devise::JWT::RevocationStrategies.constants
+28. in config/routes.rb add
+post '/login', to: 'api/v1/sessions#create
+delete '/logout', to: 'api/v1/sessions#destroy'
+namespace :api do
+  namespace :v1 do
+    resources :schools, only: [:index, :show, :create, :update, :destroy]
+  end
+end
+29. Now you can run rails s or in rails console JwtBlacklist.table_exists? to check if all points above are working
+30. rails g controller api/v1/sessions
+31. In app/controllers/api/v1/sessions_controller.rb put this
+class Api::V1::SessionsController < ApplicationController
+  skip_before_action :authenticate_user!, only: [:create]
+  def create
+    user = User.find_by(email: params[:email])
+    if user&.valid_password?(params[:password])
+      token = user.generate_jwt
+      render json: { token: token, user: user }, status: :ok
+    else
+      render json: { error: 'Invalid email or password' }, status: :unauthorized
+    end
+  end
+
+  def destroy
+    head :no_content
+  end
+end
+32. rails generate controller api/v1/schools
+33. In app/controllers/api/v1/schools_controller.rb put this
+class Api::V1::SchoolsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_school, only: [:show, :update, :destroy]
+  def index
+    @schools = School.all
+    render json: @schools, status: :ok
+  end
+  def show
+    render json: @school, status: :ok
+  end
+  def create
+    @school = School.new(school_params)
+    if @school.save
+      render json: @school, status: :created
+    else
+      render json: { errors: @school.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  def update
+    if @school.update(school_params)
+      render json: @school, status: :ok
+    else
+      render json: { errors: @school.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  def destroy
+    @school.destroy
+    head :no_content
+  end
+  private
+  def set_school
+    @school = School.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'School not found' }, status: :not_found
+  end
+  def school_params
+    params.require(:school).permit(:name, :address, :description, :phone, :email, :website)
+  end
+end
+34. In app/controllers/application_controller.rb put this
+class ApplicationController < ActionController::API
+  before_action :authenticate_user!
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found
+  private
+  def authenticate_user!
+    token = request.headers['Authorization']&.split(' ')&.last
+    if token
+      begin
+        decoded = JWT.decode(token, Rails.application.credentials.secret_key_base, true, algorithm: 'HS256')
+        @current_user = User.find(decoded[0]['user_id'])
+      rescue JWT::DecodeError
+        render json: { error: 'Invalid token' }, status: :unauthorized
+      end
+    else
+      render json: { error: 'Missing token' }, status: :unauthorized
+    end
+  end
+  def not_found
+    render json: { error: 'Resource not found' }, status: :not_found
+  end
+end
+35. In put this app/models/user.rb
+def generate_jwt
+  payload = { user_id: id, exp: 24.hours.from_now.to_i }
+  JWT.encode(payload, Rails.application.credentials.secret_key_base, 'HS256')
+end
+36. To check if all points above work run
+rails s -d  #runs server in the back, so you can work in one terminal and test the app
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "password": "password123"}'
+37. Copy token which is generated and paste here
+curl -X GET http://localhost:3000/api/v1/schools \
+  -H "Authorization: Bearer place_for_your_copied_token"
+It should return [] - because the list of school is blank
