@@ -22,6 +22,8 @@ Rails.application.routes.draw do
       # Generates the standard routes for the School resource. The 'only' option limits the generated routes to the specified actions
       # excluding 'new' and 'edit'
       resources :schools, only: [ :index, :show, :create, :update, :destroy ]
+      # Generates the standard routes for the Course resource
+      resources :courses, only: [ :index, :show, :create, :update, :destroy ]
     end
   end
 

@@ -223,3 +223,192 @@ curl -X POST http://localhost:3000/login \
 curl -X GET http://localhost:3000/api/v1/schools \
   -H "Authorization: Bearer place_for_your_copied_token"
 It should return [] - because the list of school is blank
+38. Adding pundit, in Gemfile add this gem 'pundit'
+bundle install
+rails g pundit:install -  creates app/policies/application_policy.rb
+39. In a app/controllers/application_controller.rb add this
+include Pundit::Authorization
+rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+def user_not_authorized
+  render json: { error: 'You are not authorized to perform this action' }, status: :forbidden
+end
+40. rails g pundit:policy School
+41. In app/policies/school_policy.rb put this
+class SchoolPolicy < ApplicationPolicy
+  def index?
+    true  
+  end
+  def show?
+    true  
+  end
+  def create?
+    user.admin?  
+  end
+  def update?
+    user.admin? || record.user_id == user.id   
+  end
+  def destroy?
+    user.admin?  
+  end
+end
+42. In app/controllers/api/v1/schools_controller.rb add this
+In def index
+authorize @schools
+In def show
+authorize @school
+In def create
+authorize @school
+In def update
+authorize @school
+In def destory
+authorize @school
+43. In app/models/user.rb add this
+def admin?
+  role == 'admin'
+end
+44. Now we check if pundit authorization is working
+rails console
+User.create!(
+  email: "user@example.com",
+  password: "password123",
+  password_confirmation: "password123",
+  role: nil,   # lub 'student'
+  first_name: "Jan",
+  last_name: "Kowalski",
+  active: true
+)
+User.create!(
+  email: "admin@example.com",
+  password: "password123",
+  password_confirmation: "password123",
+  role: "admin",
+  first_name: "Admin",
+  last_name: "User",
+  active: true
+)
+To check our creater users - User.all.pluck(:id, :email, :role)
+exit rails console and create a school as admin
+url -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "password": "password123"}'
+Copy token (long string in "") and paste here place_for_copied_token in new command
+curl -X POST http://localhost:3000/api/v1/schools \
+  -H "Authorization: Bearer place_for_copied_token" \
+  -H "Content-Type: application/json" \
+  -d '{"school": {"name": "Nowa Szkoła", "address": "ul. Nowa 1"}}'
+If school is created thats good, because admin only can add schools, now try to do it with user
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
+Copy token (long string in "") and paste here place_for_copied_token in new command
+curl -X POST http://localhost:3000/api/v1/schools \
+  -H "Authorization: Bearer place_for_copied_token" \
+  -H "Content-Type: application/json" \
+  -d '{"school": {"name": "Nieautoryzowana Szkoła", "address": "ul. Testowa 1"}}'
+The resoult {"error":"You are not authorized to perform this action"}
+45. rails g pundit:policy Course
+46. In app/policies/course_policy.rb put this
+class CoursePolicy < ApplicationPolicy
+  def index?
+    true   
+  end
+  def show?
+    true 
+  end
+  def create?
+    user.admin? || user.school_owner?   
+  end
+  def update?
+    user.admin? || user.school_owner? 
+  end
+  def destroy?
+    user.admin? 
+  end
+end
+47. rails g controller api/v1/courses
+48. In app/controllers/api/v1/courses_controller.rb add this
+class Api::V1::CoursesController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_course, only: [:show, :update, :destroy]
+  def index
+    @courses = Course.all
+    authorize @courses
+    render json: @courses, status: :ok
+  end
+  def show
+    authorize @course
+    render json: @course, status: :ok
+  end
+  def create
+    @course = Course.new(course_params)
+    authorize @course
+    if @course.save
+      render json: @course, status: :created
+    else
+      render json: { errors: @course.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    authorize @course 
+    if @course.update(course_params)
+      render json: @course, status: :ok
+    else
+      render json: { errors: @course.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  def destroy
+    authorize @course 
+    @course.destroy
+    head :no_content
+  end
+  private
+  def set_course
+    @course = Course.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Course not found' }, status: :not_found
+  end
+  def course_params
+    params.require(:course).permit(:name, :description, :category, :level, :age_group, :duration, :price, :school_id, :teacher_id, :max_students)
+  end
+end
+49. In config/routes.rb add
+resources :courses, only: [:index, :show, :create, :update, :destroy]
+50. In app/models/course.rb change 
+belongs_to :teacher -> belongs_to :teacher, class_name: "User"
+51. Lets check if out step are working
+rails console
+User.create!(
+  email: "teacher@example.com",
+  password: "password123",
+  password_confirmation: "password123",
+  role: "teacher",
+  first_name: "Jan",
+  last_name: "Nauczyciel",
+  active: true
+)
+teacher = User.find_by(role: 'teacher')
+teacher.id - remember that id and paste here place_for_remembered_id
+exit rails console
+rails s -d
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "password": "password123"}'
+Copy token (long string in "") and paste here place_for_copied_token in new command
+Creating course with teacher as admin
+curl -X POST http://localhost:3000/api/v1/courses \
+  -H "Authorization: Bearer place_for_copied_token" \
+  -H "Content-Type: application/json" \
+  -d '{"course": {"name": "Angielski B2", "price": 199.99, "school_id": 1, "max_students": 12, "teacher_id": place_for_remembered_id}}'
+Now lets check the course as user
+curl -X POST http://localhost:3000/login \st:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
+Copy token (long string in "") and paste here place_for_copied_token in new command
+curl -X GET http://localhost:3000/api/v1/courses/1 \
+  -H "Authorization: Bearer place_for_copied_token"
+You should be able to see course details
+curl -X DELETE http://localhost:3000/api/v1/courses/1 \
+  -H "Authorization: Bearer place_for_copied_token"
+The resoult {"error":"You are not authorized to perform this action"}
+ 

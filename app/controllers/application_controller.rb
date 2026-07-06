@@ -1,10 +1,17 @@
 class ApplicationController < ActionController::API
+    # Includes the Pundit::Authorization module in the controller. This makes Pundit's authorization methods such as authorize and
+    # policy_scope available in every controller that inherits from ApplicationController.
+    # Without it Rails would not recognize these methods, resulting in a NoMethodError when authorize or policy_scope is called.
+    include Pundit::Authorization
     # Runs the callback before every action in all controllers that inherit from ApplicationController. As a result every API request requires
     # authentication, except for actions where this callback is explicitly skipped.
     before_action :authenticate_user!
     # Rescues the ActiveRecord::RecordNotFound exception, which is raised when a requested record cannot be found in the database.
     # Instead of returning the default Rails error response, it points to the not_found method, which returns a 404 Not Found response
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
+    # Rescues the Pundit::NotAuthorizedError exception, which is raised when a user attempts to perform an action without the required permissions
+    # and delegates handling to the user_not_authorized method. Instead of displaying a Rails error, the application returns a 403 Forbidden response
+    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
     # private methods
     private
@@ -52,5 +59,10 @@ class ApplicationController < ActionController::API
     def not_found
         # status: :not_found - sets the HTTP status code to 404 Not Found
         render json: { error: "Resource not found" }, status: :not_found
+    end
+    # Returns a JSON response with an HTTP 403 Forbidden status code and a message indicating that the user does not have permission to
+    # perform the requested action.
+    def user_not_authorized
+        render json: { error: "You are not authorized to perform this action" }, status: :forbidden
     end
 end

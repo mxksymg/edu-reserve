@@ -8,12 +8,16 @@ class Api::V1::SchoolsController < ApplicationController
   def index
     # School.all - retrieves all records from the schools table in the database
     @schools = School.all
+    # Can the user view the list of schools? -> SchoolPolicy#index?
+    authorize @schools
     # Returns JSON type format with @schools - list of schools and HTTP 200 OK status code
     render json: @schools, status: :ok
   end
 
   # GET /api/v1/schools/:id
   def show
+    # Can the user view the details of a school? -> SchoolPolicy#show?
+    authorize @school
     render json: @school, status: :ok
   end
 
@@ -22,6 +26,8 @@ class Api::V1::SchoolsController < ApplicationController
     # @school = School.new(school_params) - creates a new School object in memory without saving it to the database.
     # school_params - private method
     @school = School.new(school_params)
+    # Can the user create a new school?-> SchoolPolicy#create?
+    authorize @school
     # Trying save School object into database
     if @school.save
       # status: :created - sets the HTTP status code to 201 Created, the standard response for a successfully created resource.
@@ -36,6 +42,8 @@ class Api::V1::SchoolsController < ApplicationController
 
   # PATCH /api/v1/schools/:id
   def update
+    # Can the user update this school? -> SchoolPolicy#update?
+    authorize @school
     # @school is an existing school object that was previously loaded by the set_school method
     # .update(school_params) attempts to update the object with the permitted parameters from school_params and save the changes to the database
     if @school.update(school_params)
@@ -47,6 +55,8 @@ class Api::V1::SchoolsController < ApplicationController
 
   # DELETE /api/v1/schools/:id
   def destroy
+    # Can the user delete this school? -> SchoolPolicy#destroy?
+    authorize @school
     @school.destroy
     head :no_content
   end
