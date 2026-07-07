@@ -31,4 +31,7 @@ class User < ApplicationRecord
   def admin?
     role == "admin"
   end
+  def school_owner?
+    role == "school_owner"
+  end
 end

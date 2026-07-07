@@ -64,9 +64,9 @@ class Api::V1::SchoolsController < ApplicationController
   private
 
   def set_school
-    # @school = School.find(params[:id]) - finds the school with the ID provided in the URL (e.g. /api/v1/schools/5) and
-    # stores the resulting object in the @school instance variable
-    @school = School.find(params[:id])
+  # @school = School.find(params[:id]) - finds the school with the ID provided in the URL (e.g. /api/v1/schools/5) and
+  # stores the resulting object in the @school instance variable
+  @school = School.find(params[:id])
   # rescue ActiveRecord::RecordNotFound - if no school with the specified ID exists, Rails raises an ActiveRecord::RecordNotFound
   rescue ActiveRecord::RecordNotFound
     # render json: { error: 'School not found' }, status: :not_found - returns an HTTP 404 Not Found response with the message "School not found"

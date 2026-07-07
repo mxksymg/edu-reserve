@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       resources :schools, only: [ :index, :show, :create, :update, :destroy ]
       # Generates the standard routes for the Course resource
       resources :courses, only: [ :index, :show, :create, :update, :destroy ]
+      resources :schedules, only: [ :index, :show, :create, :update, :destroy ]
     end
   end
 

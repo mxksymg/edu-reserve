@@ -266,6 +266,9 @@ authorize @school
 def admin?
   role == 'admin'
 end
+def school_owner?
+  role == 'school_owner'
+end
 44. Now we check if pundit authorization is working
 rails console
 User.create!(
@@ -411,4 +414,111 @@ You should be able to see course details
 curl -X DELETE http://localhost:3000/api/v1/courses/1 \
   -H "Authorization: Bearer place_for_copied_token"
 The resoult {"error":"You are not authorized to perform this action"}
- 
+52. In app/models/schedule.rb put this
+class Schedule < ApplicationRecord
+  belongs_to :course
+  belongs_to :teacher, class_name: "User", optional: true
+  has_many :reservations, dependent: :destroy
+  validates :weekday, presence: true
+  validates :start_time, :end_time, presence: true
+  validate :end_time_after_start_time
+  private
+  def end_time_after_start_time
+    if end_time <= start_time
+      errors.add(:end_time, "must be after start time")
+    end
+  end
+end
+53. rails g pundit:policy Schedule
+54. In app/policies/schedule_policy.rb put this
+class SchedulePolicy < ApplicationPolicy
+  def index?
+    true
+  end
+  def show?
+    true
+  end
+  def create?
+    user.admin? || user.school_owner?
+  end
+  def update?
+    user.admin? || user.school_owner?
+  end
+  def destroy?
+    user.admin?
+  end
+55. rails g controller api/v1/schedules
+56. In app/controllers/api/v1/schedules_controller.rb put this
+class Api::V1::SchedulesController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_schedule, only: [:show, :update, :destroy]
+  def index
+    @schedules = Schedule.all
+    authorize @schedules
+    render json: @schedules, status: :ok
+  end
+  def show
+    authorize @schedule
+    render json: @schedule, status: :ok
+  end
+  def create
+    @schedule = Schedule.new(schedule_params)
+    authorize @schedule
+    if @schedule.save
+      render json: @schedule, status: :created
+    else
+      render json: { errors: @schedule.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  def update
+    authorize @schedule
+    if @schedule.update(schedule_params)
+      render json: @schedule, status: :ok
+    else
+      render json: { errors: @schedule.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  def destroy
+    authorize @schedule
+    @schedule.destroy
+    head :no_content
+  end
+  private
+  def set_schedule
+    @schedule = Schedule.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Schedule not found' }, status: :not_found
+  end
+  def schedule_params
+    params.require(:schedule).permit(:weekday, :start_time, :end_time, :room, :course_id, :teacher_id)
+  end
+end
+57. In config/routes.rb add this 
+resources :schedules, only: [:index, :show, :create, :update, :destroy]
+58. Lets check if it works okey.
+59. rails s -d
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "password": "password123"}'
+curl -X GET http://localhost:3000/api/v1/schedules \
+  -H "Authorization: Bearer place_for_copied_token"
+Resolut [], now lets create schedule
+curl -X POST http://localhost:3000/api/v1/schedules \
+  -H "Authorization: Bearer place_for_copied_token" \
+  -H "Content-Type: application/json" \
+  -d '{"schedule": {"weekday": 1, "start_time": "10:00", "end_time": "11:30", "room": "Sala 101", "course_id": 1, "teacher_id": 4}}'
+Now lets update schedule
+curl -X PATCH http://localhost:3000/api/v1/schedules/1 \
+  -H "Authorization: Bearer place_for_copied_token" \
+  -H "Content-Type: application/json" \
+  -d '{"schedule": {"room": "Sala 102"}}'
+Now lets log in as normal user and test his priviliges
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
+Lets try to create schedule as user
+curl -X POST http://localhost:3000/api/v1/schedules \
+  -H "Authorization: Bearer place_for_copied_token" \
+  -H "Content-Type: application/json" \
+  -d '{"schedule": {"weekday": 1, "start_time": "10:00", "end_time": "11:30", "course_id": 1}}'
+Resoult {"error":"You are not authorized to perform this action"}
