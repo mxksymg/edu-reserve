@@ -16,16 +16,16 @@ class Reservation < ApplicationRecord
   # Sets the default status to 'pending'
   def set_default_status
     # ||= - assigns a value only if the variable is nil or false
-    self.status ||= 'pending'
+    self.status ||= "pending"
   end
   def no_conflict
-    # schedule – checks whether the schedule exists, user – the user object (e.g. User.find(1)), .reservations – returns a collection 
+    # schedule – checks whether the schedule exists, user – the user object (e.g. User.find(1)), .reservations – returns a collection
     # of all reservations associated with the user (has_many :reservations in schedule.rb).
     # .joins – an Active Record method that joins the reservations table with the schedules table through their association (:schedule) - belongs_to :schedule
     if schedule && user.reservations.joins(:schedule)
       # .where(schedules: { weekday: schedule.weekday }) – filters only the reservations that take place on the same day of the week.
-      .where(schedules: {weekday: schedule.weekday})
-      # .where.not() – does not match the search condition, id: id -  first id is the column name (in the reservations table), the second id is 
+      .where(schedules: { weekday: schedule.weekday })
+      # .where.not() – does not match the search condition, id: id -  first id is the column name (in the reservations table), the second id is
       # the value (the ID of the current reservation that we want to exclude).
       .where.not(id: id)
       # .exists? - Active Record method that checks whether at least one record matching the condition exists. Returns true of false.
@@ -36,7 +36,7 @@ class Reservation < ApplicationRecord
       .exists?
       # errors - ActiveModel::Errors object assigned to every model in Rails.
       # .add - A method that adds a new error to the object. It takes two arguments: Attribute, Message
-      # base - a special attribute representing a general error, not assigned to a specific field. Used when an error applies to the 
+      # base - a special attribute representing a general error, not assigned to a specific field. Used when an error applies to the
       # entire object rather than a single attribute.
       errors.add(:base, "Masz już zajęcia w tym terminie")
     end
@@ -49,12 +49,10 @@ class Reservation < ApplicationRecord
     # schedule.reservations – all reservations for this schedule
     # .where(status: 'confirmed') – filters only confirmed reservations, does not include pending or cancelled one
     # .count – counts the number of confirmed reservations
-    # >= schedule.course.max_students - the maximum number of participants allowed for this course. If the number of confirmed reservations 
+    # >= schedule.course.max_students - the maximum number of participants allowed for this course. If the number of confirmed reservations
     # is greater than or equal to the limit, there are no available spots.
-    if schedule && schedule.reservations.where(status: ["pending","confirmed"]).count >= schedule.course.max_students 
+    if schedule && schedule.reservations.where(status: [ "pending", "confirmed" ]).count >= schedule.course.max_students
       errors.add(:base, "Brak wolnych miejsc")
     end
   end
 end
-
-
