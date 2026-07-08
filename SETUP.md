@@ -377,8 +377,16 @@ class Api::V1::CoursesController < ApplicationController
 end
 49. In config/routes.rb add
 resources :courses, only: [:index, :show, :create, :update, :destroy]
-50. In app/models/course.rb change 
-belongs_to :teacher -> belongs_to :teacher, class_name: "User"
+50. In app/models/course.rb put this
+class Course < ApplicationRecord
+  belongs_to :school
+  belongs_to :teacher, class_name: "User", optional: true
+  has_many :schedules, dependent: :destroy
+  has_many :reservations, through: :schedules
+  validates :name, presence: true
+  validates :price, numericality: { greater_than_or_equal_to: 0 }
+  validates :max_students, numericality: { greater_than: 0 }, allow_nil: true
+end 
 51. Lets check if out step are working
 rails console
 User.create!(
@@ -522,3 +530,77 @@ curl -X POST http://localhost:3000/api/v1/schedules \
   -H "Content-Type: application/json" \
   -d '{"schedule": {"weekday": 1, "start_time": "10:00", "end_time": "11:30", "course_id": 1}}'
 Resoult {"error":"You are not authorized to perform this action"}
+60. rails g pundit:policy Reservation
+61. In app/policies/reservation_policy.rb put this
+class ReservationPolicy < ApplicationPolicy
+  def index?
+    user.present?
+  end
+  def show?
+    user.present? && (user.admin? || record.user_id == user.id)
+  end
+  def create?
+    user.present? && (user.student? || user.admin?)
+  end
+  def destroy?
+    user.present? && (user.admin? || record.user_id == user.id)
+  end
+end
+62. In app/models/reservations.rb put this
+class Reservation < ApplicationRecord
+  belongs_to :user
+  belongs_to :schedule
+  validates :status, presence: true, inclusion: { in: %w[pending confirmed cancelled] }
+  validate :no_conflict
+  validate :places_available
+  after_initialize :set_default_status, if: :new_record?
+  private
+  def set_default_status
+    self.status ||= 'pending'
+  end
+  def no_conflict
+    if schedule && user.reservations.joins(:schedule)
+                         .where(schedules: { weekday: schedule.weekday })
+                         .where.not(id: id)
+                         .exists?("schedules.start_time < ? AND schedules.end_time > ?", schedule.end_time, schedule.start_time)
+      errors.add(:base, "Masz już zajęcia w tym terminie")
+    end
+  end
+  def places_available
+    if schedule && schedule.reservations.where(status: 'confirmed').count >= schedule.course.max_students
+      errors.add(:base, "Brak wolnych miejsc")
+    end
+  end
+end
+63. Now lets check if our logic works
+To check our previos added data to database go over this command
+User.all.pluck(:id, :email, :role)
+School.all.pluck(:id, :name)
+Course.all.pluck(:id, :name, :max_students)
+Schedule.all.pluck(:id, :weekday, :start_time, :end_time, :course_id)
+Reservation.all.pluck(:id, :user_id, :schedule_id, :status)
+In my database i don't have a reservation so i will create one 
+student1 = User.find_by(email: 'student1@example.com')
+schedule = Schedule.first
+reservation = Reservation.new(user: student1, schedule: schedule)
+reservation.save
+Reservation.all.pluck(:id, :user_id, :schedule_id, :status)
+Changing course place limit to 1
+course = schedule.course
+course.update(max_students: 1)
+Creating second student
+student2 = User.create!(
+  email: "student2@example.com",
+  password: "password123",
+  password_confirmation: "password123",
+  role: "student",
+  first_name: "Jan",
+  last_name: "Student2",
+  active: true
+)
+student2 = User.find_by(email: 'student2@example.com')
+reservation2 = Reservation.new(user: student2, schedule: schedule)
+reservation2.save
+It should return false 
+To check what the error type use this
+reservation2.errors.full_messages
