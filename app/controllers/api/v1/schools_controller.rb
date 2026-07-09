@@ -72,8 +72,8 @@ class Api::V1::SchoolsController < ApplicationController
       # render json: { error: 'School not found' }, status: :not_found - returns an HTTP 404 Not Found response with the message "School not found"
       render json: { error: "School not found" }, status: :not_found
     end
-  end
-  
+
+
   def school_params
     # params.require(:school) - requires the request payload to include a :school key (e.g.{ "school": { ... } }).
     # If the key is missing, Rails raises an exception.
