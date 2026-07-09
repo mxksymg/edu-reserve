@@ -1,0 +1,31 @@
+<div class="auth-container">
+  <div class="auth-header">
+    <h1>🎓 EduReserve</h1>
+    <p>System rezerwacji zajęć</p>
+  </div>
+  
+  <!-- Obsługa flash jest w layout, więc NIE dodawaj tutaj alert/notice -->
+  
+  <%= form_with url: login_path, method: :post, local: true do |f| %>
+    <div class="form-group">
+      <label for="email">📧 Email</label>
+      <%= email_field_tag :email, nil, 
+          placeholder: "admin@example.com", 
+          required: true,
+          autofocus: true %>
+    </div>
+    
+    <div class="form-group">
+      <label for="password">🔒 Hasło</label>
+      <%= password_field_tag :password, nil, 
+          placeholder: "••••••••", 
+          required: true %>
+    </div>
+    
+    <%= submit_tag "Zaloguj się", class: "btn-primary" %>
+  <% end %>
+  
+  <div class="auth-footer">
+    <p>Nie masz konta? <a href="/register">Zarejestruj się</a></p>
+  </div>
+</div>

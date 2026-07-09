@@ -1,0 +1,67 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <h1 style="font-size: 28px; color: #1f2937; margin: 0;">
+    👋 Witaj, <%= current_user.first_name %>!
+  </h1>
+  <%= button_to "Wyloguj", logout_path, method: :delete, 
+      style: "background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px;" %>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+  <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #1f2937; margin-bottom: 16px;">📋 Twoje rezerwacje</h2>
+    <% if @reservations&.any? %>
+      <% @reservations.each do |res| %>
+        <div style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+          <div><strong><%= res.schedule.course.name %></strong></div>
+          <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
+            <%= res.schedule.weekday_name %> 
+            <%= res.schedule.start_time.strftime("%H:%M") %>
+          </div>
+          <div style="margin-top: 6px;">
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: <%= res.status == 'confirmed' ? '#d1fae5' : '#fef3c7' %>; color: <%= res.status == 'confirmed' ? '#065f46' : '#92400e' %>;">
+              <%= res.status == 'confirmed' ? '✅ Potwierdzona' : '⏳ Oczekuje' %>
+            </span>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p style="color: #6b7280;">Nie masz jeszcze żadnych rezerwacji.</p>
+    <% end %>
+  </div>
+  
+  <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #1f2937; margin-bottom: 16px;">🔜 Nadchodzące zajęcia</h2>
+    <% if @upcoming&.any? %>
+      <% @upcoming.each do |res| %>
+        <div style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+          <div><strong><%= res.schedule.course.name %></strong></div>
+          <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
+            📅 <%= res.schedule.weekday_name %> 
+            🕐 <%= res.schedule.start_time.strftime("%H:%M") %>
+            🏫 <%= res.schedule.room %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p style="color: #6b7280;">Brak nadchodzących zajęć.</p>
+    <% end %>
+  </div>
+</div>
+
+<div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 20px;">
+  <h2 style="color: #1f2937; margin-bottom: 16px;">📚 Najpopularniejsze kursy</h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+    <% @courses.each do |course| %>
+      <div style="background: #f9fafb; padding: 16px; border-radius: 8px;">
+        <div style="font-weight: 600; color: #1f2937;"><%= course.name %></div>
+        <div style="font-size: 14px; color: #6b7280;">
+          <%= course.level&.capitalize || 'Brak poziomu' %> • 
+          <%= course.price || 0 %> zł
+        </div>
+        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+          <%= course.reservations.count %> rezerwacji
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

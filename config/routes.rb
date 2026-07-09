@@ -1,4 +1,12 @@
 Rails.application.routes.draw do
+  get "login", to: "web/sessions#new"
+  post "login", to: "web/sessions#create"
+  delete "logout", to: "web/sessions#destroy"
+  root "web/dashboard#index"
+  get "register", to: "web/users#new"
+  post "register", to: "web/users#create"
+
+
   # if Rails.env.development? - checks whether the application is running in the development environment.
   # development – the environment where you work on the code (locally on your computer).
   # Other environments include: test (testing) and production (live application).
@@ -9,21 +17,8 @@ Rails.application.routes.draw do
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
   end
 
-
-
   # Generates all default Devise routes for the User model
   devise_for :users
-  # Defines a custom login route
-  # 'post' - HTTP method used to submit login credentials
-  # '/login' - URL path for loging in (e.g. http://localhost:3000/login)
-  # 'to: api/v1/sessions#create' routes the request to Api::V1::SessionsController#create and  allows login
-  # via /login instead of the default /users/sign_in
-  post "/login", to: "api/v1/sessions#create"
-  # Defines a custom logout route
-  # 'delete' – the HTTP method used to terminate the user's session (or invalidate the authentication token)
-  # '/logout' – the route path
-  # 'to: api/v1/sessions#destroy' – maps the request to the destroy action in SessionsController
-  delete "/logout", to: "api/v1/sessions#destroy"
 
   # 'namespace :api' – all routes defined within this namespace are automatically prefixed with /api
   namespace :api do
@@ -31,6 +26,20 @@ Rails.application.routes.draw do
     # of your API. This allows you to introduce changes such as modifying response formats, adding new fields,
     # or removing existing ones without breaking applications that depend on earlier versions of the API.
     namespace :v1 do
+    # Defines a custom login route
+    # 'post' - HTTP method used to submit login credentials
+    # '/login' - URL path for loging in (e.g. http://localhost:3000/login)
+    # 'to: sessions#create' routes the request to Api::V1::SessionsController#create and  allows login
+    # via /login instead of the default /users/sign_in
+    post "/login", to: "sessions#create"
+
+    # Defines a custom logout route
+    # 'delete' – the HTTP method used to terminate the user's session (or invalidate the authentication token)
+    # '/logout' – the route path
+    # 'to: sessions#destroy' – maps the request to the destroy action in SessionsController
+    delete "/logout", to: "sessions#destroy"
+
+      get "users/me"
       # Generates the standard routes for the School resource. The 'only' option limits the generated routes to the specified actions
       # excluding 'new' and 'edit'
       resources :schools, only: [ :index, :show, :create, :update, :destroy ]
@@ -50,6 +59,11 @@ Rails.application.routes.draw do
       resources :reservations, only: [ :index, :show, :create, :destroy ] do
         member do
           patch :confirm
+        end
+      end
+      resources :users, only: [ :index, :show, :update, :destroy ] do
+        member do
+          patch :update_role
         end
       end
     end

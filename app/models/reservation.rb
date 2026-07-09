@@ -56,4 +56,8 @@ class Reservation < ApplicationRecord
       errors.add(:base, "Brak wolnych miejsc")
     end
   end
+
+  scope :confirmed, -> { where(status: "confirmed") }
+  scope :pending, -> { where(status: "pending") }
+  scope :cancelled, -> { where(status: "cancelled") }
 end

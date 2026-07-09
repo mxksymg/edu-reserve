@@ -915,3 +915,165 @@ curl -X PATCH http://localhost:3000/api/v1/reservations/17/confirm \
   -H "Authorization: Bearer place_for_your_token"
 
 In chrome tab http://localhost:3000/letter_opener you should be able to see email which was send from our developer mailer
+
+82. Now lets creating website for user to interact
+touch app/controllers/web_application_controller.rb - creates file
+Open this file and paste this
+
+class WebApplicationController < ActionController::Base
+  protect_from_forgery with: :exception
+  helper_method :current_user, :logged_in?
+  private
+  def current_user
+    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+  end
+  def logged_in?
+    current_user.present?
+  end
+  def authenticate_user!
+    unless logged_in?
+      redirect_to login_path, alert: "Musisz być zalogowany!"
+    end
+  end
+end
+
+83. rails g controller Web::Sessions new create destroy --no-helper --no-assets
+Open this file and paste this
+
+class Web::SessionsController < WebApplicationController
+  skip_before_action :authenticate_user!, only: [:new, :create]
+  layout 'auth'
+  def new
+    redirect_to root_path if logged_in?
+  end
+  def create
+    user = User.find_by(email: params[:email])
+    if user&.valid_password?(params[:password])
+      session[:user_id] = user.id
+      redirect_to root_path, notice: "Zalogowano pomyślnie! Witaj, #{user.first_name}!"
+    else
+      flash.now[:alert] = "Nieprawidłowy email lub hasło"
+      render :new, status: :unprocessable_entity
+    end
+  end
+  def destroy
+    session[:user_id] = nil
+    redirect_to login_path, notice: "Wylogowano pomyślnie!"
+  end
+end
+
+84. rails g controller Web::Dashboard index --no-helper --no-assets
+Open this file and paste this
+
+class Web::DashboardController < WebApplicationController
+  before_action :authenticate_user!
+  def index
+    @reservations = current_user.reservations.includes(schedule: :course).order(created_at: :desc).limit(10)
+    @courses = Course.limit(5)
+    @upcoming = current_user.reservations.confirmed.joins(:schedule)
+                           .where('schedules.start_time > ?', Time.now)
+                           .order('schedules.start_time ASC')
+                           .limit(3)
+  end
+end
+85. rails g controller Api::V1::Users me --no-helper --no-assets
+Open this file and paste this
+
+class Api::V1::UsersController < ApplicationController
+  def me
+    render json: current_user, status: :ok
+  end
+  def index
+    authorize User
+    render json: User.all, status: :ok
+  end
+  def show
+    user = User.find(params[:id])
+    authorize user
+    render json: user, status: :ok
+  end
+  def update
+    user = User.find(params[:id])
+    authorize user
+    if user.update(user_params)
+      render json: user, status: :ok
+    else
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end 
+  def destroy
+    user = User.find(params[:id])
+    authorize user
+    user.destroy
+    head :no_content
+  end
+  private
+  def user_params
+    params.require(:user).permit(:email, :first_name, :last_name, :role, :active)
+  end
+end
+
+86. rails g pundit:policy User
+Open this file and paste this
+
+class UserPolicy < ApplicationPolicy
+  def index?
+    user.admin? || user.teacher? 
+  end
+  def show?
+    user.admin? || user.teacher? || user.id == record.id
+  end
+  def update?
+    user.admin? || user.id == record.id
+  end
+  def destroy?
+    user.admin?
+  end
+  class Scope < ApplicationPolicy::Scope
+    def resolve
+      if user.admin?
+        scope.all
+      elsif user.teacher?
+        scope.where(role: 'student') 
+      else
+        scope.where(id: user.id)  
+      end
+    end
+  end
+end
+
+87. In config/routes.rb modyify
+namespace :web do
+    get "dashboard/index", to: 'dashboard#index'
+    get "sessions/new", to: 'sessions#new'
+    post "sessions/create", to: 'sessions#create'
+    delete "sessions/destroy", to: 'sessions#destroy'
+  end
+And add this
+root 'web/dashboard#index'
+get 'register', to: 'web/users#new'
+post 'register', to: 'web/users#create'
+After get 'users/me', to: 'users#me' add this
+resources :users, only: [:index, :show, :update, :destroy]
+
+88. In app/controllers/application_controller.rb add this after include Pundit::Authorization
+before_action :authenticate_user!
+
+89. In config/application.rb add this
+config.middleware.use ActionDispatch::Cookies
+config.middleware.use ActionDispatch::Session::CookieStore
+config.middleware.use ActionDispatch::Flash
+And modyify this line config.api_only = false
+
+90. mkdir -p app/views/web/dashboard
+touch app/views/web/dashboard/index.html.erb open this file and put this
+
+91. After running bundle exec brakeman --no-pager it found some vulnerabilities
+Confidence: Medium
+Category: Mass Assignment
+Check: PermitAttributes
+Message: Potentially dangerous key allowed for mass assignment
+Code: params.require(:user).permit(:email, :first_name, :last_name, :role, :active)
+File: app/controllers/api/v1/users_controller.rb
+Line: 44
+In app/controllers/api/v1/users_controller.rb

@@ -3,8 +3,8 @@ class ApplicationController < ActionController::API
     # policy_scope available in every controller that inherits from ApplicationController.
     # Without it Rails would not recognize these methods, resulting in a NoMethodError when authorize or policy_scope is called.
     include Pundit::Authorization
-    # Runs the callback before every action in all controllers that inherit from ApplicationController. As a result every API request requires
-    # authentication, except for actions where this callback is explicitly skipped.
+    # Executes authenticate_user! before every action in controllers that inherit from ApplicationController.
+    # This ensures that all API endpoints require authentication unless the callback is skipped.
     before_action :authenticate_user!
     # Rescues the ActiveRecord::RecordNotFound exception, which is raised when a requested record cannot be found in the database.
     # Instead of returning the default Rails error response, it points to the not_found method, which returns a 404 Not Found response
