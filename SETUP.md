@@ -269,6 +269,12 @@ end
 def school_owner?
   role == 'school_owner'
 end
+def teacher?
+  role == 'teacher'
+end
+def student?
+  role == 'student'
+end
 44. Now we check if pundit authorization is working
 rails console
 User.create!(
@@ -567,7 +573,7 @@ class Reservation < ApplicationRecord
     end
   end
   def places_available
-    if schedule && schedule.reservations.where(status: 'confirmed').count >= schedule.course.max_students
+    if new_record? && schedule && schedule.reservations.where(status: 'confirmed').count >= schedule.course.max_students
       errors.add(:base, "Brak wolnych miejsc")
     end
   end
@@ -604,3 +610,308 @@ reservation2.save
 It should return false 
 To check what the error type use this
 reservation2.errors.full_messages
+64. We will add reservation confirmation an endpoint that allows an administrator or teacher to change a reservation's status from pending to confirmed
+In config/routes.rb add this
+resources :reservations, only: [:index, :show, :create, :destroy] do
+  member do
+    patch :confirm   # PATCH /api/v1/reservations/:id/confirm
+  end
+end
+65. rails g controller api/v1/reservations 
+66. In app/controllers/api/v1/reservations_controller.rb put this
+class Api::V1::ReservationsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_reservation, only: [:show, :destroy, :confirm]
+  def index
+    @reservations = current_user.reservations
+    authorize @reservations
+    render json: @reservations, status: :ok
+  end
+  def show
+    authorize @reservation
+    render json: @reservation, status: :ok
+  end
+  def create
+    @reservation = current_user.reservations.new(reservation_params)
+    authorize @reservation
+    if @reservation.save
+      render json: @reservation, status: :created
+    else
+      render json: { errors: @reservation.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  def destroy
+    authorize @reservation
+    @reservation.destroy
+    head :no_content
+  end
+  def confirm
+    authorize @reservation, :confirm?
+    if @reservation.update(status: 'confirmed')
+      render json: @reservation, status: :ok
+    else
+      render json: { errors: @reservation.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  private
+  def set_reservation
+    @reservation = Reservation.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Reservation not found' }, status: :not_found
+  end
+
+  def reservation_params
+    params.require(:reservation).permit(:schedule_id, :status)
+  end
+end
+67. In app/policies/reservation_policy.rb add this
+def confirm?
+  user.admin? || user.teacher?
+end
+68. Now lets test
+rails console
+Reservation.destroy_all
+schedule = Schedule.first
+student1 = User.find_by(email: 'student1@example.com')
+student2 = User.find_by(email: 'student2@example.com')
+course = Course.first
+teacher = User.find_by(role: 'teacher')
+exit rails console
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "student1@example.com", "password": "password123"}'
+curl -X POST http://localhost:3000/api/v1/reservations \
+  -H "Authorization: Bearer place_for_your_token" \
+  -H "Content-Type: application/json" \
+  -d '{"reservation": {"schedule_id": 1}}'
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type": application/json" \
+  -d '{"email": "student2@example.com", "password": "password123"}'
+curl -X POST http://localhost:3000/api/v1/reservations \
+  -H "Authorization: Bearer place_for_your_token" \
+  -H "Content-Type: application/json" \
+  -d '{"reservation": {"schedule_id": 1}}'
+{"errors":["Brak wolnych miejsc"]}
+69. Now lets test if admin can change status
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "password": "password123"}'
+curl -X PATCH http://localhost:3000/api/v1/reservations/14/confirm \
+  -H "Authorization: Bearer place_for_your_token"
+To check if updated paste this
+curl -X GET http://localhost:3000/api/v1/reservations/13 \
+  -H "Authorization: Bearer place_for_your_token"
+
+70. Email notifications, sending a reservation confirmation email to the student LETTER OPENER
+In config/environments/development.rb 
+config.action_mailer.delivery_method = :letter_opener
+config.action_mailer.perform_deliveries = true
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+71. In app/models/schedule.rb add this before private methods
+def weekday_name
+    day_names = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"]
+    day_names[weekday] if weekday.present?
+end
+72. In config/routes.rb add this before namespace
+if Rails.env.development?
+  mount LetterOpenerWeb::Engine, at: "/letter_opener"
+end
+73. rails g mailer ReservationMailer confirmation
+74. Create file in app/mailers and name it reservation_mailer.rb .Inside this file put this
+class ReservationMailer < ApplicationMailer
+  def confirmation(reservation)
+    @reservation = reservation
+    @user = reservation.user
+    @schedule = reservation.schedule
+    @course = @schedule.course
+    mail(
+      to: @user.email,
+      subject: "Potwierdzenie rezerwacji - #{@course.name}"
+    )
+  end
+end
+75. In app/views/reservation_mailer/confirmation.html.erb - create template
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #4f46e5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+    .details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }
+    .button { display: inline-block; background: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✅ Rezerwacja potwierdzona!</h1>
+    </div>
+    <div class="content">
+      <h2>Witaj <%= @user.first_name %>!</h2>
+      <p>Twoja rezerwacja na kurs <strong><%= @course.name %></strong> została <strong>potwierdzona</strong>.</p>
+
+      <div class="details">
+        <h3>📋 Szczegóły rezerwacji:</h3>
+        <ul style="list-style: none; padding: 0;">
+          <li><strong>📚 Kurs:</strong> <%= @course.name %></li>
+          <li><strong>📅 Dzień:</strong> <%= @schedule.weekday_name %></li>
+          <li><strong>🕐 Godzina:</strong> <%= @schedule.start_time.strftime("%H:%M") %> - <%= @schedule.end_time.strftime("%H:%M") %></li>
+          <li><strong>🏫 Sala:</strong> <%= @schedule.room %></li>
+          <li><strong>👨‍🏫 Nauczyciel:</strong> <%= @schedule.teacher&.first_name %> <%= @schedule.teacher&.last_name %></li>
+        </ul>
+      </div>
+
+      <p>Do zobaczenia na zajęciach! 🎓</p>
+      <p style="margin-top: 30px;">
+        <%= link_to "Zobacz swoje rezerwacje", api_v1_reservations_url, class: "button" %>
+      </p>
+    </div>
+    <div class="footer">
+      <p>EduReserve – system rezerwacji zajęć</p>
+      <p>Ta wiadomość została wygenerowana automatycznie.</p>
+    </div>
+  </div>
+</body>
+</html>
+
+76. In app/controllers/api/v1/reservations_controller.rb modyify this
+if @reservation.update(status: 'confirmed')
+  ReservationMailer.confirmation(@reservation).deliver_later
+  render json: @reservation, status: :ok
+else
+77. In config/initializers create file sidekiq.rb and put this
+Sidekiq.configure_server do |config|
+  config.redis = { url: 'redis://localhost:6379/0' }
+end
+Sidekiq.configure_client do |config|
+  config.redis = { url: 'redis://localhost:6379/0' }
+end
+78. In config/application.rb add this line inside class Application < Rails::Application
+config.active_job.queue_adapter = :sidekiq
+79. In Gemfile inside group :development do add
+gem 'letter_opener_web'
+80. bundle install
+
+Now lets test if works
+
+81. Open new termnial inside your projekt folder
+sudo apt install redis-server
+redis-server
+To check if redis is working 
+redis-cli ping
+If works it should return PONG
+Open new termnial inside your projekt folder
+bundle exec sidekiq
+
+Lets create extra two users in rails console
+User.create!(
+  email: "ania@example.com",
+  password: "password123",
+  password_confirmation: "password123",
+  first_name: "Jane",
+  last_name: "Kowalska",
+  role: "student",
+  active: true
+)
+User.create!(
+  email: "konrad@example.com",
+  password: "password123",
+  password_confirmation: "password123",
+  first_name: "Konrad",
+  last_name: "Nowak",
+  role: "student",
+  active: true
+)
+
+Now lets create two extra courses, if you want to check what parameters courses can have paste this
+cat db/schema.rb | grep -A 20 "create_table \"courses\""
+
+course3 = Course.create!(
+  name: "JavaScript - Średniozaawansowany",
+  description: "Poznaj zaawansowane techniki JavaScript: async/await, fetch API, DOM manipulation",
+  level: "intermediate",
+  age_group: "adult",
+  category: "programming",
+  duration: 25,
+  max_students: 12,
+  price: 349.99,
+  school_id: 1,
+  teacher_id: User.find_by(role: 'teacher').id
+)
+
+course4 = Course.create!(
+  name: "Design Thinking dla młodzieży",
+  description: "Kurs kreatywnego rozwiązywania problemów metodą Design Thinking",
+  level: "beginner",
+  age_group: "teenager",
+  category: "design",
+  duration: 12,
+  max_students: 1,
+  price: 149.99,
+  school_id: 1,
+  teacher_id: User.find_by(role: 'teacher').id
+)
+Course.pluck(:id, :name)
+
+Now lets create two extra schedules, if you want to check what parameters schedules can have paste this
+cat db/schema.rb | grep -A 20 "create_table \"schedules\""
+
+teacher = User.find_by(role: 'teacher')
+Schedule.create!(
+  course_id: 2,
+  teacher_id: teacher.id,
+  weekday: 2,
+  start_time: "14:00",
+  end_time: "15:30",
+  room: "Sala 202"
+)
+
+Schedule.create!(
+  course_id: 3,
+  teacher_id: teacher.id,
+  weekday: 4,
+  start_time: "10:00",
+  end_time: "11:30",
+  room: "Sala 303"
+)
+Schedule.pluck(:id, :course_id)
+
+Open third terminal, in console remove all reservations and run server in background
+rails s -d
+
+To check if server is responding
+curl http://localhost:3000/up
+Resoult : <!DOCTYPE html><html><body style="background-color: green"></body></html>
+Log in as user
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "konrad@example.com", "password": "password123"}'
+Check courses and schedules
+curl -X GET http://localhost:3000/api/v1/schedules \
+-H "Authorization: Bearer place_for_your_token" \
+-H "Content-Type: application/json"
+
+Create reservation
+curl -X POST http://localhost:3000/api/v1/reservations \
+  -H "Authorization: Bearer place_for_your_token" \
+  -H "Content-Type: application/json" \
+  -d '{"reservation": {"schedule_id": 2}}'
+
+To check list of reservations
+curl -X GET http://localhost:3000/api/v1/reservations \
+  -H "Authorization: Bearer place_for_your_token"
+
+Now log in as admin
+curl -X POST http://localhost:3000/login \
+-H "Content-Type: application/json" \
+-d '{"email": "admin@example.com", "password": "password123"}'
+
+And change the status from pending to confirmation
+curl -X PATCH http://localhost:3000/api/v1/reservations/17/confirm \
+  -H "Authorization: Bearer place_for_your_token"
+
+In chrome tab http://localhost:3000/letter_opener you should be able to see email which was send from our developer mailer

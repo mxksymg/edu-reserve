@@ -1,4 +1,16 @@
 Rails.application.routes.draw do
+  # if Rails.env.development? - checks whether the application is running in the development environment.
+  # development – the environment where you work on the code (locally on your computer).
+  # Other environments include: test (testing) and production (live application).
+  if Rails.env.development?
+    # mount – attach an application to your Rails app.
+    # LetterOpenerWeb::Engine – a complete application (engine) provided by Letter Opener Web.
+    # at: "/letter_opener" – defines the URL path where it will be available.
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
+
+
+
   # Generates all default Devise routes for the User model
   devise_for :users
   # Defines a custom login route
@@ -25,6 +37,21 @@ Rails.application.routes.draw do
       # Generates the standard routes for the Course resource
       resources :courses, only: [ :index, :show, :create, :update, :destroy ]
       resources :schedules, only: [ :index, :show, :create, :update, :destroy ]
+      # To allow changing a reservation's status from pending to confirmed, we can do it in two ways : update – PATCH /api/v1/reservations/1 with
+      # { "status": "confirmed" } or dedicated confirm action – PATCH /api/v1/reservations/1/confirm
+      # confirm clearly expresses what the action does (it confirms a reservation). update is generic, it could be used to modify many other
+      # fields (e.g. user_id, schedule_id). With update, we would need to check whether the user is allowed to modify any field and then
+      # additionally verify whether they can change the status. With confirm, authorization is straightforward. Only an admin or teacher can
+      # confirm reservations. With update someone could submit additional fields (e.g. user_id) and modify them if they are not properly protected.
+      # With confirm, only the status is changed, nothing else.
+      # member - Rails method that adds a route for a single resource.
+      # do ... end - opens a block where you can define additional custom routes for this resource.
+      # patch :confirm - defines a PATCH route: /api/v1/reservations/:id/confirm
+      resources :reservations, only: [ :index, :show, :create, :destroy ] do
+        member do
+          patch :confirm
+        end
+      end
     end
   end
 

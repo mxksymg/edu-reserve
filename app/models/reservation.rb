@@ -44,14 +44,15 @@ class Reservation < ApplicationRecord
 
   # Responsible for checking whether there are available spots for a given class.
   def places_available
-    puts ">>> places_available called!"
-
+    # puts ">>> places_available called!"
+    # new_record? – checks whether the reservation is new (it is created, not updated). This ensures that the validation is not triggered
+    # when confirming a reservation (updating the status)
     # schedule.reservations – all reservations for this schedule
     # .where(status: 'confirmed') – filters only confirmed reservations, does not include pending or cancelled one
     # .count – counts the number of confirmed reservations
     # >= schedule.course.max_students - the maximum number of participants allowed for this course. If the number of confirmed reservations
     # is greater than or equal to the limit, there are no available spots.
-    if schedule && schedule.reservations.where(status: [ "pending", "confirmed" ]).count >= schedule.course.max_students
+    if new_record? && schedule && schedule.reservations.where(status: [ "pending", "confirmed" ]).count >= schedule.course.max_students
       errors.add(:base, "Brak wolnych miejsc")
     end
   end

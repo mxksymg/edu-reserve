@@ -15,6 +15,11 @@ class Schedule < ApplicationRecord
   # Calls the private during validation.
   validate :end_time_after_start_time
 
+  def weekday_name
+    day_names = [ "Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota" ]
+    day_names[weekday] if weekday.present?
+  end
+
   private
   # Checks whether end_time is later than start_time.
   def end_time_after_start_time

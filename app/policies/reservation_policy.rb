@@ -15,4 +15,8 @@ class ReservationPolicy < ApplicationPolicy
   def destroy?
     user.present? && (user.admin? || record.user_id == user.id)
   end
+  def confirm?
+    # Checks whether the current user is an administrator or a teacher.
+    user.admin? || user.teacher?
+  end
 end

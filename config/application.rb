@@ -29,6 +29,15 @@ module EduReserve
     config.autoload_lib(ignore: %w[assets tasks])
 
     # Configuration for the application, engines, and railties goes here.
+
+
+    # config.active_job – configuration for Active Job, the built in Rails system for background jobs.
+    # queue_adapter – specifies which adapter (backend) should be used for job processing.
+    # :sidekiq – tells Rails: "Use Sidekiq to handle background jobs."
+    config.active_job.queue_adapter = :sidekiq
+
+
+
     #
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.

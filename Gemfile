@@ -66,6 +66,7 @@ end
 group :development do
   # Captures sent emails and opens them in a browser instead of sending them
   gem "letter_opener"
+  gem "letter_opener_web"
 end
 
 group :development, :test do

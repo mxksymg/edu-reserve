@@ -32,7 +32,7 @@ class Api::V1::SchedulesController < ApplicationController
             # status: :created - sets the HTTP status code to 201 Created, the standard response for a successfully created resource.
             render json: @schedule, status: :created
         else
-            # @schedule.errors.full_messages - returns an array of error messages (e.g. ["Name can't be blank"]).
+            # @schedule.errors.full_messages - returns an array of error messages.
             # status: :unprocessable_entity - sets the HTTP status code to 422 Unprocessable Entity, indicating that the request is
             # sort of valid but contains invalid or unprocessable data
             render json: { errors: @schedule.errors.full_messages }, status: :unprocessable_entity
