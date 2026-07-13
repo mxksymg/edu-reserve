@@ -2,6 +2,7 @@ class Web::CoursesController < WebApplicationController
   layout "application"
   def index
     @courses = Course.all
+    authorize @courses
     # Checks whether the search parameter was provided in the URL. params[:search] – comes from the search field.
     # .present? – checks whether it is not empty.
     if params[:search].present?
@@ -47,6 +48,7 @@ class Web::CoursesController < WebApplicationController
   def show
     # Finds the course in the database by ID. params[:id] – retrieves the ID from the URL (e.g. /courses/1 -> id = 1).
     @course = Course.find(params[:id])
+    authorize @course
     # Retrieves all schedules for this course. .includes(:teacher) – loads the teacher with a single query.
     @schedules = @course.schedules.includes(:teacher)
     # Creates a new, empty reservation object. Does not save it to the database.

@@ -57,6 +57,19 @@ class Reservation < ApplicationRecord
     end
   end
 
+  def pending?
+    status == "pending"
+  end
+
+  def confirmed?
+    status == "confirmed"
+  end
+
+  def cancelled?
+    status == "cancelled"
+  end
+
+
   scope :confirmed, -> { where(status: "confirmed") }
   scope :pending, -> { where(status: "pending") }
   scope :cancelled, -> { where(status: "cancelled") }

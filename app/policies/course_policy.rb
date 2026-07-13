@@ -9,14 +9,14 @@ class CoursePolicy < ApplicationPolicy
   end
   # Only administrators or the school owner can create courses
   def create?
-    user.admin? || record.user_id == user.id
+    user.admin? || user.teacher?
   end
   # Only administrators or the school owner can update courses.
   def update?
-    user.admin? || record.user_id == user.id
+    user.admin? || record.teacher_id == user.id
   end
   # Only administrators can delete courses.
   def destroy?
-    user.admin?
+    user.admin? || record.teacher_id == user.id
   end
 end

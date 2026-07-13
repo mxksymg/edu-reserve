@@ -151,8 +151,16 @@
           </span>
         </div>
         
-        <%= link_to course_path(course), style: "display: inline-block; width: 100%; text-align: center; padding: 10px; background: #6366f1; color: white; border-radius: 10px; text-decoration: none; font-weight: 500; font-size: 14px; transition: all 0.2s ease; border: none; cursor: pointer; hover:background: #4f46e5; hover:transform: translateY(-1px); hover:box-shadow: 0 4px 16px rgba(99,102,241,0.35);" do %>
+        <% if current_user.student? %>
+          <!-- Dla studenta - pokaż przycisk "Zobacz szczegóły" -->
+          <%= link_to course_path(course), style: "display: inline-block; width: 100%; text-align: center; padding: 10px; background: #6366f1; color: white; border-radius: 10px; text-decoration: none; font-weight: 500; font-size: 14px; transition: all 0.2s ease;" do %>
             Zobacz szczegóły →
+          <% end %>
+        <% else %>
+          <!-- Dla nauczyciela/admina - pokaż przycisk "Zobacz szczegóły" (bez opcji zapisu) -->
+          <%= link_to course_path(course), style: "display: inline-block; width: 100%; text-align: center; padding: 10px; background: #6366f1; color: white; border-radius: 10px; text-decoration: none; font-weight: 500; font-size: 14px; transition: all 0.2s ease;" do %>
+            Zobacz szczegóły →
+          <% end %>
         <% end %>
       </div>
     <% end %>

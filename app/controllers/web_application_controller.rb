@@ -3,6 +3,10 @@
 # Example ActionController::API - only JSON(api), ActionController: :Base - HTML, ERB, sessions, cookies, forms
 
 class WebApplicationController < ActionController::Base
+    # Includes the Pundit::Authorization module in the controller. This makes Pundit's authorization methods such as authorize and
+    # policy_scope available in every controller that inherits from WebApplicationController.
+    # Without it Rails would not recognize these methods, resulting in a NoMethodError when authorize or policy_scope is called.
+    include Pundit::Authorization
     # Protects against CSRF (Cross-Site Request Forgery) attacks. Requires every form to include a hidden security token.
     protect_from_forgery with: :exception
     # Rails method that makes controller methods available in views (.html.erb files).

@@ -220,7 +220,7 @@
                 </div>
               </div>
               <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: <%= res.status == 'confirmed' ? '#dcfce7' : '#fef3c7' %>; color: <%= res.status == 'confirmed' ? '#166534' : '#92400e' %>; flex-shrink: 0;">
-                <%= res.status == 'confirmed' ? '✅ Potwierdzona' : '⏳ Oczekuje' %>
+                <%= res.status == 'confirmed' ? '✅ Potwierdzona' : res.status == 'pending' ? '⏳ Oczekuje' : '❌ Anulowana' %>
               </span>
             </div>
           </div>

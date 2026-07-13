@@ -358,9 +358,24 @@
         
         <!-- LINKI NAWIGACYJNE -->
         <div class="nav-links">
+          <% if current_user&.student? || current_user&.admin?%>
           <%= link_to "Dashboard", root_path, class: current_page?(root_path) ? "active" : "" %>
           <%= link_to "Kursy", courses_path, class: current_page?(courses_path) ? "active" : "" %>
           <%= link_to "Profil", profile_path, class: current_page?(profile_path) ? "active" : "" %>
+          <% end %>
+
+          <% if current_user&.teacher? || current_user&.admin? %>
+            <%= link_to "👨‍🏫 Panel Nauczyciela", teacher_dashboard_path, class: current_page?(teacher_dashboard_path) ? "active" : "" %>
+          <% end %>
+          <% if current_user&.admin? %>
+            <%= link_to "⚙️ Panel Admina", "#", class: "" %>
+          <% end %>
+
+          <% if current_user&.teacher? || current_user&.admin? %>
+            <%= link_to "📅 Kalendarz", teacher_calendar_path, class: current_page?(teacher_calendar_path) ? "active" : "" %>
+            <%= link_to "📚 Moje kursy", teacher_courses_path, class: current_page?(teacher_courses_path) ? "active" : "" %>
+          <% end %>
+
         </div>
       </div>
       

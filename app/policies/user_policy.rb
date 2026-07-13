@@ -15,6 +15,9 @@ class UserPolicy < ApplicationPolicy
   def destroy?
     user.admin?
   end
+  def profile?
+    user.id == record.id
+  end
   class Scope < ApplicationPolicy::Scope
     # Returns the list of users that the person is allowed to see.
     def resolve

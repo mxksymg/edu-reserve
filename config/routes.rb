@@ -2,7 +2,8 @@ Rails.application.routes.draw do
   get "login", to: "web/sessions#new"
   post "login", to: "web/sessions#create"
   delete "logout", to: "web/sessions#destroy"
-  root "web/dashboard#index"
+  get "dashboard", to: "web/dashboard#index", as: "web_dashboard"
+  root "home#index"
   get "register", to: "web/users#new"
   post "register", to: "web/users#create"
 
@@ -26,7 +27,26 @@ Rails.application.routes.draw do
 
   # Generates all default Devise routes for the User model
   devise_for :users
-
+  #------------------------------------------
+  # TEACHER's PANEL
+  namespace :teacher do
+    get "dashboard", to: "dashboard#index"
+    get "calendar", to: "calendar#index"
+    get "calendar/:id", to: "calendar#show", as: :calendar_event
+    resources :courses, only: [ :index, :show, :edit, :update, :new, :create ] do
+      member do
+        delete :destroy
+      end
+    end
+    resources :reservations, only: [ :index ] do
+      member do
+        patch :confirm
+        patch :cancel
+      end
+    end
+    resources :students, only: [ :index ]
+  end
+  #------------------------------------------
   # 'namespace :api' – all routes defined within this namespace are automatically prefixed with /api
   namespace :api do
     # API versioning is the practice of assigning version numbers (e.g., `v1`, `v2`, `v3`) to different versions

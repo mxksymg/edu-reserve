@@ -1,0 +1,100 @@
+<div style="margin-bottom: 28px;">
+  <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
+    📋 Rezerwacje
+  </h1>
+  <p style="color: #64748b; font-size: 16px;">
+    Wszystkie rezerwacje na Twoje kursy
+  </p>
+</div>
+
+<!-- FILTRY -->
+<div style="background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 20px;">
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <span style="font-weight: 500; color: #64748b; font-size: 14px;">Filtruj:</span>
+    <%= link_to "Wszystkie", teacher_reservations_path, class: "filter-btn active" %>
+    <%= link_to "⏳ Oczekujące", teacher_reservations_path(status: 'pending'), class: "filter-btn" %>
+    <%= link_to "✅ Potwierdzone", teacher_reservations_path(status: 'confirmed'), class: "filter-btn" %>
+    <%= link_to "❌ Anulowane", teacher_reservations_path(status: 'cancelled'), class: "filter-btn" %>
+  </div>
+</div>
+
+<!-- TABELA -->
+<div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden;">
+  
+  <% if @reservations.any? %>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+          <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Student</th>
+          <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Kurs</th>
+          <th style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Termin</th>
+          <th style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+          <th style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @reservations.each do |res| %>
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px 16px;">
+              <div style="font-weight: 500; color: #0f172a;"><%= res.user.first_name %> <%= res.user.last_name %></div>
+              <div style="font-size: 13px; color: #64748b;"><%= res.user.email %></div>
+            </td>
+            <td style="padding: 12px 16px;">
+              <div style="font-weight: 500; color: #0f172a;"><%= res.schedule.course.name %></div>
+            </td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <div style="font-size: 14px; color: #0f172a;"><%= res.schedule.weekday_name %></div>
+              <div style="font-size: 13px; color: #64748b;"><%= res.schedule.start_time.strftime("%H:%M") %></div>
+            </td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <span style="display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: <%= res.status == 'confirmed' ? '#dcfce7' : res.status == 'pending' ? '#fef3c7' : '#fee2e2' %>; color: <%= res.status == 'confirmed' ? '#166534' : res.status == 'pending' ? '#92400e' : '#991b1b' %>;">
+                <%= res.status == 'confirmed' ? '✅ Potwierdzona' : res.status == 'pending' ? '⏳ Oczekuje' : '❌ Anulowana' %>
+              </span>
+            </td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <% if res.pending? %>
+                <%= button_to "✅ Potwierdź", confirm_teacher_reservation_path(res), method: :patch, style: "background: #22c55e; color: white; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500;" %>
+              <% elsif res.confirmed? %>
+                <%= button_to "❌ Anuluj", cancel_teacher_reservation_path(res), method: :patch, style: "background: #ef4444; color: white; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500;" %>
+              <% else %>
+                <span style="font-size: 12px; color: #94a3b8;">Brak akcji</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <!-- ✅ PAGINACJA Z will_paginate -->
+    <div style="display: flex; justify-content: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+      <%= will_paginate @reservations %>
+    </div>
+    
+  <% else %>
+    <p style="text-align: center; padding: 32px 0; color: #94a3b8;">Brak rezerwacji na Twoje kursy</p>
+  <% end %>
+</div>
+
+<style>
+  .filter-btn {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    background: #f1f5f9;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .filter-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  
+  .filter-btn.active {
+    background: #6366f1;
+    color: white;
+  }
+</style>

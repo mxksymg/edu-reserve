@@ -1,0 +1,95 @@
+<!-- ============================================================== -->
+<!-- KALENDARZ NAUCZYCIELA (STYL MICROSOFT TEAMS) -->
+<!-- ============================================================== -->
+
+<div style="margin-bottom: 28px;">
+  <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
+    📅 Mój kalendarz
+  </h1>
+  <p style="color: #64748b; font-size: 16px;">
+    Przeglądaj swoje zajęcia w tygodniu
+  </p>
+</div>
+
+<!-- ===== KALENDARZ - WIDOK TYGODNIOWY ===== -->
+<div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+  
+  <!-- Nagłówki dni -->
+  <div style="display: grid; grid-template-columns: 60px repeat(7, 1fr); background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+    <div style="padding: 12px 8px; font-weight: 600; color: #94a3b8; font-size: 12px; text-align: center; border-right: 1px solid #e2e8f0;"></div>
+    <% ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].each do |day| %>
+      <div style="padding: 12px 8px; font-weight: 600; color: #64748b; font-size: 13px; text-align: center; border-right: 1px solid #e2e8f0;">
+        <%= day %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Godziny + Zajęcia -->
+  <div style="display: grid; grid-template-columns: 60px repeat(7, 1fr);">
+    
+    <!-- Godziny -->
+    <% (8..20).each do |hour| %>
+      <div style="border-bottom: 1px solid #f1f5f9; padding: 8px 4px; text-align: center; font-size: 11px; color: #94a3b8; background: #fafbfc;">
+        <%= "#{hour}:00" %>
+      </div>
+      
+      <!-- Dni tygodnia -->
+      <% (0..6).each do |day| %>
+        <div style="border-bottom: 1px solid #f1f5f9; padding: 4px; min-height: 40px; border-right: 1px solid #f1f5f9; position: relative;">
+          
+          <% schedule = @week_schedules[day]&.find { |s| s.start_time.hour == hour } %>
+          
+          <% if schedule %>
+            <%= link_to teacher_calendar_event_path(schedule), style: "display: block; background: #eef2ff; border-radius: 6px; padding: 6px 8px; border-left: 4px solid #6366f1; text-decoration: none; cursor: pointer; transition: all 0.2s ease; hover:background: #e0e7ff; height: 100%; min-height: 36px;" do %>
+              <!-- ✅ NAZWA KURSU - Z ZAWIJANIEM -->
+              <div style="
+                font-weight: 600; 
+                color: #1e293b; 
+                font-size: 11px; 
+                line-height: 1.3;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                white-space: normal;
+                word-break: break-word;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              ">
+                <%= schedule.course.name %>
+              </div>
+              <div style="font-size: 9px; color: #64748b; margin-top: 2px;">
+                <%= schedule.start_time.strftime("%H:%M") %>
+              </div>
+              <div style="font-size: 9px; color: #94a3b8; margin-top: 1px;">
+                👥 <%= schedule.reservations.count %>
+              </div>
+            <% end %>
+          <% end %>
+          
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<!-- ===== LEGENDA ===== -->
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; padding: 16px 20px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+  <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b;">
+    <span style="display: inline-block; width: 16px; height: 16px; background: #eef2ff; border-radius: 4px; border-left: 4px solid #6366f1;"></span>
+    Moje zajęcia
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b;">
+    <span style="display: inline-block; width: 16px; height: 16px; background: #dcfce7; border-radius: 4px; border-left: 4px solid #22c55e;"></span>
+    Potwierdzone
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b;">
+    <span style="display: inline-block; width: 16px; height: 16px; background: #fef3c7; border-radius: 4px; border-left: 4px solid #f59e0b;"></span>
+    Oczekujące
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b;">
+    <span style="display: inline-block; width: 16px; height: 16px; background: #fee2e2; border-radius: 4px; border-left: 4px solid #ef4444;"></span>
+    Anulowane
+  </div>
+</div>

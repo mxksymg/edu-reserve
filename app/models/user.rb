@@ -7,6 +7,7 @@ class User < ApplicationRecord
   # As a result, the database stores integer values (e.g. 0, 1, 2, 3), while in Ruby you can work with descriptive names such as :admin or :student
   # enum role: { student: 0, teacher: 1, school_owner: 2, admin: 3 }
   has_many :reservations, dependent: :destroy
+  has_many :schedules, foreign_key: :teacher_id
   # JWTBlacklist stores revoked JWT tokens. It allows users to log out by invalidating their tokens, preventing further access to the API
   # Without a blacklist : JWT is stateless, tokens remain valid until they expire, logging out does not invalidate the token
   # With a blacklist : each token has a unique identifier (jti), every request checks whether the token has been revoked, logging out
