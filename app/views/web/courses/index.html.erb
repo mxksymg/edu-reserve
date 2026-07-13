@@ -1,0 +1,213 @@
+<!-- ============================================================== -->
+<!-- NAGŁÓWEK -->
+<!-- ============================================================== -->
+
+<div style="margin-bottom: 28px;">
+  <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
+    📚 Wszystkie kursy
+  </h1>
+  <p style="color: #64748b; font-size: 16px;">
+    Znajdź idealny kurs dla siebie
+  </p>
+</div>
+
+<!-- ============================================================== -->
+<!-- WYSZUKIWARKA + FILTRY -->
+<!-- ============================================================== -->
+
+<div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 28px;">
+  
+  <!-- Wyszukiwarka -->
+  <div style="margin-bottom: 20px;">
+    <%= form_with url: courses_path, method: :get, local: true do |f| %>
+      <div style="display: flex; gap: 12px;">
+        <div style="flex: 1; position: relative;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #94a3b8;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <%= text_field_tag :search, params[:search], 
+              placeholder: "Szukaj kursu...", 
+              style: "width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;",
+              onfocus: "this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 4px rgba(99,102,241,0.1)';",
+              onblur: "this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';" %>
+        </div>
+        <%= submit_tag "Szukaj", 
+            style: "padding: 12px 24px; background: #6366f1; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;",
+            onmouseover: "this.style.background='#4f46e5'",
+            onmouseout: "this.style.background='#6366f1'" %>
+        <% if params[:search].present? || params[:level].present? || params[:category].present? %>
+          <%= link_to "Reset", courses_path, 
+              style: "padding: 12px 20px; background: #f1f5f9; color: #64748b; border-radius: 10px; text-decoration: none; font-weight: 500; transition: all 0.2s ease;",
+              onmouseover: "this.style.background='#e2e8f0'",
+              onmouseout: "this.style.background='#f1f5f9'" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Filtry -->
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+    
+    <!-- Poziom -->
+    <div>
+      <span style="font-size: 13px; font-weight: 500; color: #64748b; margin-right: 8px;">Poziom:</span>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <%= link_to "Wszystkie", courses_path(search: params[:search], category: params[:category]), 
+            class: "filter-btn #{'active' if params[:level].blank?}" %>
+        <%= link_to "Beginner", courses_path(level: 'beginner', search: params[:search], category: params[:category]), 
+            class: "filter-btn #{'active' if params[:level] == 'beginner'}" %>
+        <%= link_to "Intermediate", courses_path(level: 'intermediate', search: params[:search], category: params[:category]), 
+            class: "filter-btn #{'active' if params[:level] == 'intermediate'}" %>
+        <%= link_to "Advanced", courses_path(level: 'advanced', search: params[:search], category: params[:category]), 
+            class: "filter-btn #{'active' if params[:level] == 'advanced'}" %>
+      </div>
+    </div>
+
+    <!-- Kategorie -->
+    <div>
+      <span style="font-size: 13px; font-weight: 500; color: #64748b; margin-right: 8px;">Kategoria:</span>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <%= link_to "Wszystkie", courses_path(search: params[:search], level: params[:level]), 
+            class: "filter-btn #{'active' if params[:category].blank?}" %>
+        <% ['programming', 'languages', 'business', 'design', 'marketing'].each do |cat| %>
+          <%= link_to cat.capitalize, courses_path(category: cat, search: params[:search], level: params[:level]), 
+              class: "filter-btn #{'active' if params[:category] == cat}" %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Sortowanie -->
+    <div style="margin-left: auto;">
+      <span style="font-size: 13px; font-weight: 500; color: #64748b; margin-right: 8px;">Sortuj:</span>
+      <select onchange="window.location.href=this.value" style="padding: 6px 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: 13px; cursor: pointer;">
+        <option value="<%= courses_path(search: params[:search], level: params[:level], category: params[:category], sort: 'popular') %>" <%= 'selected' if params[:sort] == 'popular' || params[:sort].blank? %>>Najpopularniejsze</option>
+        <option value="<%= courses_path(search: params[:search], level: params[:level], category: params[:category], sort: 'price_asc') %>" <%= 'selected' if params[:sort] == 'price_asc' %>>Cena: od najniższej</option>
+        <option value="<%= courses_path(search: params[:search], level: params[:level], category: params[:category], sort: 'price_desc') %>" <%= 'selected' if params[:sort] == 'price_desc' %>>Cena: od najwyższej</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- LISTA KURSÓW - KARTY -->
+<!-- ============================================================== -->
+
+<% if @courses.any? %>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+    <% @courses.each do |course| %>
+      <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.2s ease; border: 1px solid transparent; display: flex; flex-direction: column;">
+        
+        <!-- Nagłówek karty -->
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <span style="font-size: 24px;">
+              <%= ['💻', '📱', '🎨', '📊', '🌐', '🤖', '🎯', '📝'].sample %>
+            </span>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <%= course.name %>
+            </h3>
+            <span style="display: inline-block; padding: 2px 10px; border-radius: 9999px; background: #eef2ff; font-size: 11px; font-weight: 500; color: #6366f1; margin-top: 2px;">
+              <%= course.level&.capitalize || 'Brak poziomu' %>
+            </span>
+          </div>
+        </div>
+        
+        <!-- Ocena -->
+        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
+          <% (1..5).each do |i| %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="<%= i <= 4 ? '#f59e0b' : '#d1d5db' %>" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px; color: <%= i <= 4 ? '#f59e0b' : '#d1d5db' %>;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0l-4.725 2.885a.562.562 0 01-.84-.61l1.285-5.385a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+            </svg>
+          <% end %>
+          <span style="font-size: 13px; color: #64748b; margin-left: 4px;">(24)</span>
+        </div>
+        
+        <!-- Opis -->
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 16px; line-height: 1.5; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          <%= course.description || 'Brak opisu' %>
+        </p>
+        
+        <!-- Szczegóły -->
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; font-size: 13px; color: #64748b; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <%= course.price || 0 %> zł
+          </span>
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            <%= course.reservations.count %> rezerwacji
+          </span>
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 16px; height: 16px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            <%= course.schedules.count %> terminów
+          </span>
+        </div>
+        
+        <%= link_to course_path(course), style: "display: inline-block; width: 100%; text-align: center; padding: 10px; background: #6366f1; color: white; border-radius: 10px; text-decoration: none; font-weight: 500; font-size: 14px; transition: all 0.2s ease; border: none; cursor: pointer; hover:background: #4f46e5; hover:transform: translateY(-1px); hover:box-shadow: 0 4px 16px rgba(99,102,241,0.35);" do %>
+            Zobacz szczegóły →
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <!-- Brak wyników -->
+  <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+    <h3 style="font-size: 20px; font-weight: 600; color: #0f172a; margin-bottom: 8px;">Nie znaleziono kursów</h3>
+    <p style="color: #64748b; font-size: 15px;">Spróbuj zmienić kryteria wyszukiwania lub filtry.</p>
+    <%= link_to "Wyczyść filtry", courses_path, 
+        style: "display: inline-block; margin-top: 16px; padding: 10px 24px; background: #6366f1; color: white; border-radius: 10px; text-decoration: none; font-weight: 500; transition: all 0.2s ease;" %>
+  </div>
+<% end %>
+
+<!-- ============================================================== -->
+<!-- STYLE DLA FILTRÓW -->
+<!-- ============================================================== -->
+
+<style>
+  .filter-btn {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+    background: #f1f5f9;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .filter-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  
+  .filter-btn.active {
+    background: #6366f1;
+    color: white;
+  }
+  
+  .filter-btn.active:hover {
+    background: #4f46e5;
+  }
+  
+  .course-card {
+    transition: all 0.2s ease;
+  }
+  
+  .course-card:hover {
+    border-color: #e2e8f0;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+  }
+</style>

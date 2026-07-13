@@ -10,6 +10,8 @@ class WebApplicationController < ActionController::Base
     before_action :authenticate_user!
 
     def authenticate_user!
+        # If we're on the login page, STOP here and don't check whether the user is logged in!
+        return if controller_name == "sessions" && action_name.in?([ "new", "create" ])
         # Executes the code only if logged_in? returns false.
         unless logged_in?
             # redirect_to – redirects the user. login_path – the path to the login page. alert: – sets an error message.

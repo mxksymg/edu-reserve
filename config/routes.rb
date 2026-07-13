@@ -6,6 +6,13 @@ Rails.application.routes.draw do
   get "register", to: "web/users#new"
   post "register", to: "web/users#create"
 
+  get "courses", to: "web/courses#index"
+  get "courses/:id", to: "web/courses#show", as: "course"
+  post "reservations", to: "web/reservations#create"
+
+  get "profile", to: "web/users#profile", as: "profile"
+  get "profile/edit", to: "web/users#edit", as: "edit_profile"
+  patch "profile", to: "web/users#update"
 
   # if Rails.env.development? - checks whether the application is running in the development environment.
   # development – the environment where you work on the code (locally on your computer).

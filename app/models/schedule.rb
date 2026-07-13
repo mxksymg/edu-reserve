@@ -19,6 +19,11 @@ class Schedule < ApplicationRecord
     day_names = [ "Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota" ]
     day_names[weekday] if weekday.present?
   end
+  # Returns string with the weekday name and class times.
+  def weekday_name_with_time
+    # "#{...} ..." - Inserts the value of a variable.
+    "#{weekday_name} #{start_time.strftime('%H:%M')} - #{end_time.strftime('%H:%M')}"
+  end
 
   private
   # Checks whether end_time is later than start_time.

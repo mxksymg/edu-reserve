@@ -1,0 +1,157 @@
+<!-- ============================================================== -->
+<!-- SZCZEGÓŁY KURSU -->
+<!-- ============================================================== -->
+
+<div style="display: flex; gap: 32px; align-items: flex-start;">
+  
+  <!-- LEWA STRONA - INFORMACJE O KURSIE -->
+  <div style="flex: 2;">
+    <!-- Nawigacja powrotna -->
+    <a href="<%= courses_path %>" style="display: inline-flex; align-items: center; gap: 6px; color: #6366f1; text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 20px; transition: all 0.2s ease;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      Powrót do listy kursów
+    </a>
+
+    <!-- Nagłówek -->
+    <div style="margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+        <div style="width: 64px; height: 64px; border-radius: 16px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <span style="font-size: 32px;">💻</span>
+        </div>
+        <div>
+          <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin: 0; letter-spacing: -0.5px;">
+            <%= @course.name %>
+          </h1>
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+            <span style="display: inline-block; padding: 2px 12px; border-radius: 9999px; background: #eef2ff; font-size: 13px; font-weight: 500; color: #6366f1;">
+              <%= @course.level&.capitalize || 'Brak poziomu' %>
+            </span>
+            <span style="display: inline-block; padding: 2px 12px; border-radius: 9999px; background: #f1f5f9; font-size: 13px; font-weight: 500; color: #64748b;">
+              <%= @course.category&.capitalize || 'Brak kategorii' %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ocena -->
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+      <div style="display: flex; gap: 2px;">
+        <% (1..5).each do |i| %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="<%= i <= 4 ? '#f59e0b' : '#d1d5db' %>" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px; color: <%= i <= 4 ? '#f59e0b' : '#d1d5db' %>;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0l-4.725 2.885a.562.562 0 01-.84-.61l1.285-5.385a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+          </svg>
+        <% end %>
+      </div>
+      <span style="font-size: 14px; color: #64748b;">(24 opinie)</span>
+    </div>
+
+    <!-- Opis -->
+    <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <h3 style="font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 8px;">📖 Opis kursu</h3>
+      <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0;">
+        <%= @course.description || 'Brak opisu' %>
+      </p>
+    </div>
+
+    <!-- Szczegóły -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+      <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #f1f5f9;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Czas trwania</div>
+        <div style="font-size: 16px; font-weight: 600; color: #0f172a;"><%= @course.duration || '?' %> godzin</div>
+      </div>
+      <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #f1f5f9;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Cena</div>
+        <div style="font-size: 16px; font-weight: 600; color: #0f172a;"><%= @course.price || 0 %> zł</div>
+      </div>
+      <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #f1f5f9;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Max studentów</div>
+        <div style="font-size: 16px; font-weight: 600; color: #0f172a;"><%= @course.max_students || '∞' %></div>
+      </div>
+      <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #f1f5f9;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Terminy</div>
+        <div style="font-size: 16px; font-weight: 600; color: #0f172a;"><%= @schedules.count %></div>
+      </div>
+    </div>
+
+    <!-- Harmonogram -->
+    <% if @schedules.any? %>
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 12px;">📅 Dostępne terminy</h3>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <% @schedules.each do |schedule| %>
+            <div style="background: #f8fafc; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #6366f1;">
+              <div>
+                <div style="font-weight: 500; color: #0f172a; font-size: 15px;">
+                  <%= schedule.weekday_name %>
+                </div>
+                <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
+                  🕐 <%= schedule.start_time.strftime("%H:%M") %> - <%= schedule.end_time.strftime("%H:%M") %>
+                  <span style="margin-left: 12px;">🏫 <%= schedule.room || 'Brak sali' %></span>
+                </div>
+              </div>
+              <div style="font-size: 13px; color: #94a3b8;">
+                👨‍🏫 <%= schedule.teacher&.first_name || 'Brak' %> <%= schedule.teacher&.last_name || '' %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- PRAWA STRONA - KARTA ZAPISU -->
+  <div style="flex: 1; min-width: 300px; position: sticky; top: 80px;">
+    <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;">
+      <h3 style="font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">
+        <%= @course.price || 0 %> zł
+      </h3>
+      <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
+        za cały kurs
+      </p>
+
+      <%= form_with model: @reservation, url: reservations_path, method: :post, local: true do |f| %>
+        <%= hidden_field_tag :course_id, @course.id %>
+        
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="schedule_id" style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Wybierz termin:</label>
+          <%= select_tag :schedule_id, 
+              options_from_collection_for_select(@schedules, :id, :weekday_name_with_time),
+              prompt: "Wybierz termin",
+              style: "width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; background: #f8fafc; transition: all 0.2s ease;",
+              required: true %>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 14px; background: #6366f1; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; hover:background: #4f46e5; hover:transform: translateY(-1px); hover:box-shadow: 0 4px 16px rgba(99,102,241,0.35);">
+          📝 Zapisz się na kurs
+        </button>
+      <% end %>
+
+      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px; color: #22c55e;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Bezpieczna rezerwacja</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b; margin-top: 4px;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 18px; height: 18px; color: #22c55e;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Potwierdzenie emailem</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  }
+</style>

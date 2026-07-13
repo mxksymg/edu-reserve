@@ -1,66 +1,234 @@
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-  <h1 style="font-size: 28px; color: #1f2937; margin: 0;">
-    👋 Witaj, <%= current_user.first_name %>!
+<!-- ============================================================== -->
+<!-- 1. POWITANIE -->
+<!-- ============================================================== -->
+
+<div style="margin-bottom: 28px;">
+  <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
+    Dzień dobry, <%= current_user.first_name %>! 👋
   </h1>
-  <%= button_to "Wyloguj", logout_path, method: :delete, 
-      style: "background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px;" %>
+  <p style="color: #64748b; font-size: 16px;">
+    <% if @today_reservations > 0 %>
+      Masz dziś <strong style="color: #6366f1;"><%= @today_reservations %></strong> zajęcia.
+    <% else %>
+      Nie masz dziś zajęć. Miłego dnia! 🌞
+    <% end %>
+  </p>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-  <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-    <h2 style="color: #1f2937; margin-bottom: 16px;">📋 Twoje rezerwacje</h2>
-    <% if @reservations&.any? %>
-      <% @reservations.each do |res| %>
-        <div style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
-          <div><strong><%= res.schedule.course.name %></strong></div>
-          <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
-            <%= res.schedule.weekday_name %> 
-            <%= res.schedule.start_time.strftime("%H:%M") %>
-          </div>
-          <div style="margin-top: 6px;">
-            <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: <%= res.status == 'confirmed' ? '#d1fae5' : '#fef3c7' %>; color: <%= res.status == 'confirmed' ? '#065f46' : '#92400e' %>;">
-              <%= res.status == 'confirmed' ? '✅ Potwierdzona' : '⏳ Oczekuje' %>
-            </span>
-          </div>
-        </div>
-      <% end %>
-    <% else %>
-      <p style="color: #6b7280;">Nie masz jeszcze żadnych rezerwacji.</p>
+<!-- ============================================================== -->
+<!-- 2. STATYSTYKI - 4 KAFELKI -->
+<!-- ============================================================== -->
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;">
+  
+  <!-- Kafelek 1: Rezerwacje -->
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #6366f1;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @total_reservations %></div>
+        <div style="font-size: 13px; color: #64748b;">Rezerwacje</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Kafelek 2: Dzisiaj -->
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #dbeafe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #2563eb;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008z" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @today_reservations %></div>
+        <div style="font-size: 13px; color: #64748b;">Dzisiaj</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Kafelek 3: Ukończone -->
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #dcfce7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #16a34a;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @completed_reservations %></div>
+        <div style="font-size: 13px; color: #64748b;">Ukończone</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Kafelek 4: Wydano -->
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #d97706;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= number_to_currency(@total_spent, unit: "zł", format: "%n %u") %></div>
+        <div style="font-size: 13px; color: #64748b;">Wydano</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KALENDARZ + NADCHODZĄCE ZAJĘCIA -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+  
+  <!-- KALENDARZ -->
+<div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">
+      <%= @current_date.strftime("%B %Y") %>
+    </h2>
+    <div style="display: flex; gap: 8px;">
+      <a href="?month=<%= @month - 1 %>&year=<%= @year %>" style="background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 16px; text-decoration: none; color: #0f172a;">‹</a>
+      <a href="?month=<%= @month + 1 %>&year=<%= @year %>" style="background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 16px; text-decoration: none; color: #0f172a;">›</a>
+    </div>
+  </div>
+  
+  <!-- Nagłówki dni tygodnia -->
+  <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px;">
+    <% ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].each do |day| %>
+      <div style="text-align: center; font-size: 12px; font-weight: 600; color: #94a3b8; padding: 4px 0;">
+        <%= day %>
+      </div>
     <% end %>
   </div>
   
-  <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-    <h2 style="color: #1f2937; margin-bottom: 16px;">🔜 Nadchodzące zajęcia</h2>
+  <!-- Dni miesiąca -->
+  <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;" id="calendar-grid">
+    <% 
+      today = Date.today
+      start_of_month = @current_date.beginning_of_month
+      end_of_month = @current_date.end_of_month
+      start_date = start_of_month.beginning_of_week(:monday)
+      end_date = end_of_month.end_of_week(:monday)
+      
+      # Pobierz dni z rezerwacjami
+      reservation_days = current_user.reservations.confirmed.joins(:schedule).pluck(:created_at).map(&:to_date).compact
+    %>
+    
+    <% (start_date..end_date).each do |date| %>
+      <div style="
+        text-align: center;
+        padding: 8px 0;
+        border-radius: 8px;
+        font-size: 14px;
+        <%= 'font-weight: 600;' if date == today %>
+        <%= 'color: #94a3b8;' if date.month != @month %>
+        <%= "background: #6366f1; color: white;" if date == today %>
+        <%= "background: #dbeafe; color: #1e40af; cursor: pointer;" if reservation_days.include?(date) %>
+        hover:background: #f1f5f9;
+        transition: background 0.2s;
+      ">
+        <%= date.day %>
+      </div>
+    <% end %>
+  </div>
+  
+  <!-- Legenda -->
+  <div style="display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b;">
+      <span style="display: inline-block; width: 12px; height: 12px; background: #dbeafe; border-radius: 4px;"></span>
+      Zajęcia
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b;">
+      <span style="display: inline-block; width: 12px; height: 12px; background: #6366f1; border-radius: 4px;"></span>
+      Dzisiaj
+    </div>
+  </div>
+</div>
+  
+  <!-- NADCHODZĄCE ZAJĘCIA -->
+  <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 24px; height: 24px; color: #6366f1;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008z" />
+      </svg>
+      <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">Nadchodzące zajęcia</h2>
+      <span style="margin-left: auto; font-size: 12px; color: #94a3b8; background: #f1f5f9; padding: 2px 10px; border-radius: 9999px;">
+        <%= @upcoming&.count || 0 %>
+      </span>
+    </div>
+    
     <% if @upcoming&.any? %>
-      <% @upcoming.each do |res| %>
-        <div style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
-          <div><strong><%= res.schedule.course.name %></strong></div>
-          <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
-            📅 <%= res.schedule.weekday_name %> 
-            🕐 <%= res.schedule.start_time.strftime("%H:%M") %>
-            🏫 <%= res.schedule.room %>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <% @upcoming.each do |res| %>
+          <div style="padding: 14px 16px; border-radius: 10px; background: #f8fafc; border-left: 4px solid #6366f1;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <div style="font-weight: 600; color: #0f172a; font-size: 15px;">
+                  <%= res.schedule.course.name %>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 4px; font-size: 13px; color: #64748b;">
+                  <span>📅 <%= res.schedule.weekday_name %></span>
+                  <span>🕐 <%= res.schedule.start_time.strftime("%H:%M") %></span>
+                  <span>🏫 <%= res.schedule.room %></span>
+                </div>
+              </div>
+              <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #dbeafe; color: #1e40af; flex-shrink: 0; margin-left: 12px;">
+                🔜 Niedługo
+              </span>
+            </div>
           </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     <% else %>
-      <p style="color: #6b7280;">Brak nadchodzących zajęć.</p>
+      <div style="text-align: center; padding: 32px 0; color: #94a3b8;">
+        <p style="font-size: 14px;">Brak nadchodzących zajęć</p>
+      </div>
     <% end %>
   </div>
 </div>
 
-<div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 20px;">
-  <h2 style="color: #1f2937; margin-bottom: 16px;">📚 Najpopularniejsze kursy</h2>
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
-    <% @courses.each do |course| %>
-      <div style="background: #f9fafb; padding: 16px; border-radius: 8px;">
-        <div style="font-weight: 600; color: #1f2937;"><%= course.name %></div>
-        <div style="font-size: 14px; color: #6b7280;">
-          <%= course.level&.capitalize || 'Brak poziomu' %> • 
-          <%= course.price || 0 %> zł
-        </div>
-        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
-          <%= course.reservations.count %> rezerwacji
-        </div>
+<!-- KARTA: Twoje rezerwacje -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+  <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 24px; height: 24px; color: #6366f1;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+      </svg>
+      <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">Twoje rezerwacje</h2>
+      <span style="margin-left: auto; font-size: 12px; color: #94a3b8; background: #f1f5f9; padding: 2px 10px; border-radius: 9999px;">
+        <%= @reservations&.count || 0 %>
+      </span>
+    </div>
+    
+    <% if @reservations&.any? %>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <% @reservations.each do |res| %>
+          <div style="padding: 14px 16px; border-radius: 10px; background: #f8fafc;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <div style="font-weight: 600; color: #0f172a; font-size: 15px;">
+                  <%= res.schedule.course.name %>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px; margin-top: 4px; font-size: 13px; color: #64748b;">
+                  <span>📅 <%= res.schedule.weekday_name %></span>
+                  <span>🕐 <%= res.schedule.start_time.strftime("%H:%M") %></span>
+                </div>
+              </div>
+              <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: <%= res.status == 'confirmed' ? '#dcfce7' : '#fef3c7' %>; color: <%= res.status == 'confirmed' ? '#166534' : '#92400e' %>; flex-shrink: 0;">
+                <%= res.status == 'confirmed' ? '✅ Potwierdzona' : '⏳ Oczekuje' %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div style="text-align: center; padding: 32px 0; color: #94a3b8;">
+        <p style="font-size: 14px;">Nie masz jeszcze żadnych rezerwacji</p>
       </div>
     <% end %>
   </div>

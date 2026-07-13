@@ -1,0 +1,91 @@
+<!-- ============================================================== -->
+<!-- PROFIL UŻYTKOWNIKA -->
+<!-- ============================================================== -->
+
+<div style="max-width: 600px; margin: 0 auto;">
+  
+  <!-- Nagłówek - wyśrodkowany -->
+  <div style="text-align: center; margin-bottom: 32px;">
+    <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px;">
+      👤 Mój profil
+    </h1>
+    <p style="color: #64748b; font-size: 16px; margin: 0;">
+      Zarządzaj swoimi danymi osobowymi
+    </p>
+  </div>
+
+  <!-- Avatar - wyśrodkowany -->
+  <div style="text-align: center; margin-bottom: 28px;">
+    <div style="width: 88px; height: 88px; border-radius: 50%; background: #6366f1; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 34px; font-weight: 700; color: white; box-shadow: 0 4px 16px rgba(99,102,241,0.3);">
+      <%= @user.first_name&.first&.upcase || "U" %>
+    </div>
+  </div>
+
+  <!-- Karta z danymi -->
+  <div style="background: white; border-radius: 16px; padding: 32px 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <!-- Imię -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+        <div>
+          <div style="font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Imię</div>
+          <div style="font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 500;"><%= @user.first_name %></div>
+        </div>
+        <div style="font-size: 20px; color: #94a3b8;">👤</div>
+      </div>
+
+      <!-- Nazwisko -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+        <div>
+          <div style="font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Nazwisko</div>
+          <div style="font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 500;"><%= @user.last_name %></div>
+        </div>
+        <div style="font-size: 20px; color: #94a3b8;">📋</div>
+      </div>
+
+      <!-- Email -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+        <div>
+          <div style="font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Email</div>
+          <div style="font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 500;"><%= @user.email %></div>
+        </div>
+        <div style="font-size: 20px; color: #94a3b8;">✉️</div>
+      </div>
+
+      <!-- Rola -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0;">
+        <div>
+          <div style="font-size: 12px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Rola</div>
+          <div style="margin-top: 4px;">
+            <span style="display: inline-block; padding: 4px 16px; border-radius: 9999px; background: #eef2ff; color: #6366f1; font-size: 14px; font-weight: 600;">
+              <%= @user.role&.capitalize || 'Student' %>
+            </span>
+          </div>
+        </div>
+        <div style="font-size: 20px; color: #94a3b8;">🎓</div>
+      </div>
+    </div>
+
+    <!-- Przyciski -->
+    <div style="display: flex; gap: 12px; margin-top: 28px; padding-top: 24px; border-top: 1px solid #f1f5f9;">
+      <%= link_to "✏️ Edytuj profil", edit_profile_path, style: "flex: 1; text-align: center; padding: 13px; background: #6366f1; color: white; border-radius: 10px; text-decoration: none; font-weight: 500; font-size: 15px; transition: all 0.2s ease;" %>
+      <%= link_to "🔙 Dashboard", root_path, style: "padding: 13px 24px; background: #f1f5f9; color: #64748b; border-radius: 10px; text-decoration: none; font-weight: 500; font-size: 15px; transition: all 0.2s ease;" %>
+    </div>
+  </div>
+
+  <!-- Statystyki -->
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px;">
+    <div style="background: white; border-radius: 12px; padding: 20px 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+      <div style="font-size: 26px; font-weight: 700; color: #0f172a;"><%= @user.reservations.count %></div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 2px;">Rezerwacje</div>
+    </div>
+    <div style="background: white; border-radius: 12px; padding: 20px 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+      <div style="font-size: 26px; font-weight: 700; color: #0f172a;"><%= @user.reservations.confirmed.count %></div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 2px;">Potwierdzone</div>
+    </div>
+    <div style="background: white; border-radius: 12px; padding: 20px 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+      <div style="font-size: 26px; font-weight: 700; color: #0f172a;"><%= @user.reservations.pending.count %></div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 2px;">Oczekujące</div>
+    </div>
+  </div>
+</div>

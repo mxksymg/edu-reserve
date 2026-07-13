@@ -54,7 +54,7 @@ class Api::V1::ReservationsController < ApplicationController
             # receives the job. Sidekiq is a separate process that continuously checks whether there are new jobs in the queue.
             # When it finds an email job, it executes it, meaning it connects to the SMTP server and sends the email. The user
             # does not wait. The application immediately returns a response (e.g. JSON confirmation).
-            ReservationMailer.confirmation(@reservation).deliver_later # if @reservation.status_previously_changed?
+            ReservationMailer.confirmation(@reservation).deliver_later if @reservation.status_previously_changed?
             # if @reservation.status_previously_changed? - avoid sending the email every time the status changes to confirmed
             render json: @reservation, status: :ok
         else
@@ -65,9 +65,9 @@ class Api::V1::ReservationsController < ApplicationController
     private
 
     def set_reservation
-        # @reservation = Reservation.find(params[:id]) - finds the reservation with the ID provided in the URL (e.g. /api/v1/reservation/5) and
-        # stores the resulting object in the @reservation instance variable
-        @reservation = Reservation.find(params[:id])
+            # @reservation = Reservation.find(params[:id]) - finds the reservation with the ID provided in the URL (e.g. /api/v1/reservation/5) and
+            # stores the resulting object in the @reservation instance variable
+            @reservation = Reservation.find(params[:id])
         # rescue ActiveRecord::RecordNotFound - if no reservation with the specified ID exists, Rails raises an ActiveRecord::RecordNotFound
         rescue ActiveRecord::RecordNotFound
             render json: { error: "Reservation not found" }, status: :not_found
