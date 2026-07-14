@@ -8,6 +8,14 @@ class User < ApplicationRecord
   # enum role: { student: 0, teacher: 1, school_owner: 2, admin: 3 }
   has_many :reservations, dependent: :destroy
   has_many :schedules, foreign_key: :teacher_id
+  # validates :role, inclusion: { ... } - checks whether the value of the role field is allowed.
+  # in: %w[admin teacher student school_owner] - Defines the list of allowed roles. %w[...] – creates an array of strings.
+  validates :role, inclusion: { in: %w[admin teacher student school_owner], message: "%{value} is not a valid role" }, allow_nil: true
+  # Checks whether the active field is true or false. inclusion – checks whether the value belongs to the set [true, false].
+  validates :active, inclusion: { in: [ true, false ] }
+
+
+
   # JWTBlacklist stores revoked JWT tokens. It allows users to log out by invalidating their tokens, preventing further access to the API
   # Without a blacklist : JWT is stateless, tokens remain valid until they expire, logging out does not invalidate the token
   # With a blacklist : each token has a unique identifier (jti), every request checks whether the token has been revoked, logging out

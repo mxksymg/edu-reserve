@@ -19,13 +19,13 @@ class Admin::UsersController < WebApplicationController
   end
 
   def update
-    # Attempts to update the user with the data from the form.
     if @user.update(user_params)
       redirect_to admin_users_path, notice: "✅ Użytkownik został zaktualizowany!"
     else
       render :edit, status: :unprocessable_entity
     end
   end
+
 
   def destroy
     if @user == current_user
@@ -69,7 +69,7 @@ class Admin::UsersController < WebApplicationController
   end
   # The user_params method defines the allowed parameters for user updates.
   def user_params
-    params.require(:user).permit(:email, :first_name, :last_name, :role, :active)
+    params.require(:user).permit(:email, :first_name, :last_name)
   end
 
   def ensure_admin!
