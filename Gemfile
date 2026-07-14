@@ -35,7 +35,6 @@ gem "image_processing", "~> 1.2"
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
 
-gem "will_paginate"
 
 
 # Complete solution for user authentication and registration
@@ -85,3 +84,5 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 end
+gem "kaminari"
+gem "will_paginate", "~> 3.3"

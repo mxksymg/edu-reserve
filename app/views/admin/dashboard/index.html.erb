@@ -1,0 +1,160 @@
+<!-- ============================================================== -->
+<!-- PANEL ADMINA - DASHBOARD -->
+<!-- ============================================================== -->
+
+<div style="margin-bottom: 28px;">
+  <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
+    👑 Panel Admina
+  </h1>
+  <p style="color: #64748b; font-size: 16px;">
+    Witaj, <%= current_user.first_name %>! Zarządzaj całym systemem.
+  </p>
+</div>
+
+<!-- ===== STATYSTYKI ===== -->
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 28px;">
+  
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #6366f1;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @total_users %></div>
+        <div style="font-size: 13px; color: #64748b;">Użytkownicy</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #dbeafe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #2563eb;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @total_courses %></div>
+        <div style="font-size: 13px; color: #64748b;">Kursy</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #dcfce7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #16a34a;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @total_reservations %></div>
+        <div style="font-size: 13px; color: #64748b;">Rezerwacje</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #d97706;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @pending_reservations %></div>
+        <div style="font-size: 13px; color: #64748b;">Oczekujące</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: #fce7f3; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 22px; height: 22px; color: #db2777;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6h1.5m-1.5 3h1.5m-1.5 3h1.5M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+        </svg>
+      </div>
+      <div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= @total_schools %></div>
+        <div style="font-size: 13px; color: #64748b;">Szkoły</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OSTATNI UŻYTKOWNICY + OSTATNIE REZERWACJE ===== -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+  
+  <!-- Ostatni użytkownicy -->
+  <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">👥 Ostatni użytkownicy</h2>
+      <%= link_to "Zobacz wszystkich →", admin_users_path, style: "font-size: 14px; color: #6366f1; text-decoration: none;" %>
+    </div>
+    
+    <% if @recent_users.any? %>
+      <% @recent_users.each do |user| %>
+        <div style="padding: 10px 12px; border-radius: 8px; background: #f8fafc; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 500; color: #0f172a;"><%= user.first_name %> <%= user.last_name %></div>
+            <div style="font-size: 13px; color: #64748b;"><%= user.email %></div>
+          </div>
+          <span style="font-size: 12px; padding: 2px 10px; border-radius: 9999px; background: <%= user.role == 'admin' ? '#eef2ff' : user.role == 'teacher' ? '#dbeafe' : '#f1f5f9' %>; color: <%= user.role == 'admin' ? '#6366f1' : user.role == 'teacher' ? '#2563eb' : '#64748b' %>;">
+            <%= user.role&.capitalize || 'Student' %>
+          </span>
+        </div>
+      <% end %>
+    <% else %>
+      <p style="color: #94a3b8; text-align: center; padding: 20px 0;">Brak użytkowników</p>
+    <% end %>
+  </div>
+
+  <!-- Ostatnie rezerwacje -->
+  <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">📋 Ostatnie rezerwacje</h2>
+      <%= link_to "Zobacz wszystkie →", admin_reservations_path, style: "font-size: 14px; color: #6366f1; text-decoration: none;" %>
+    </div>
+    
+    <% if @recent_reservations.any? %>
+      <% @recent_reservations.each do |res| %>
+        <div style="padding: 10px 12px; border-radius: 8px; background: #f8fafc; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 500; color: #0f172a; font-size: 14px;"><%= res.user.first_name %> <%= res.user.last_name %></div>
+            <div style="font-size: 13px; color: #64748b;"><%= res.schedule.course.name %></div>
+          </div>
+          <span style="display: inline-flex; align-items: center; padding: 3px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: <%= res.status == 'confirmed' ? '#dcfce7' : res.status == 'pending' ? '#fef3c7' : '#fee2e2' %>; color: <%= res.status == 'confirmed' ? '#166534' : res.status == 'pending' ? '#92400e' : '#991b1b' %>;">
+            <%= res.status == 'confirmed' ? '✅ Potwierdzona' : res.status == 'pending' ? '⏳ Oczekuje' : '❌ Anulowana' %>
+          </span>
+        </div>
+      <% end %>
+    <% else %>
+      <p style="color: #94a3b8; text-align: center; padding: 20px 0;">Brak rezerwacji</p>
+    <% end %>
+  </div>
+</div>
+
+<!-- ===== NAJPOPULARNIEJSZE KURSY ===== -->
+<div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">📚 Najpopularniejsze kursy</h2>
+    <%= link_to "Zobacz wszystkie →", admin_courses_path, style: "font-size: 14px; color: #6366f1; text-decoration: none;" %>
+  </div>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+    <% @popular_courses.each do |course| %>
+      <div style="background: #f8fafc; border-radius: 10px; padding: 14px 16px; border: 1px solid #f1f5f9;">
+        <div style="font-weight: 600; color: #0f172a;"><%= course.name %></div>
+        <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
+          <%= course.level&.capitalize || 'Brak poziomu' %>
+        </div>
+        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+          <%= course.reservations.count %> rezerwacji
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

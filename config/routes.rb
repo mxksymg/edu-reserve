@@ -47,6 +47,34 @@ Rails.application.routes.draw do
     resources :students, only: [ :index ]
   end
   #------------------------------------------
+  # ADMIN's PANEL
+  # Creates a group of routes with the /admin prefix.
+  namespace :admin do
+    # Creates a route for the admin dashboard. GET /admin/dashboard
+    get "dashboard", to: "dashboard#index"
+    resources :users, only: [ :index, :show, :edit, :update, :destroy ] do
+      # Adds routes for a single resource (with :id in the URL).
+      member do
+        # Adds a route for updating a user's role. PATCH /admin/users/:id/update_role
+        patch :update_role
+        # Adds a route for activating/deactivating a user. PATCH /admin/users/:id/toggle_active
+        patch :toggle_active
+      end
+    end
+    resources :courses, only: [ :index, :new, :create, :edit, :update, :destroy ]
+    resources :reservations, only: [ :index, :show, :destroy ] do
+      member do
+        # Adds a route for confirming a reservation. PATCH /admin/reservations/:id/confirm
+        patch :confirm
+        # Adds a route for cancelling a reservation. PATCH /admin/reservations/:id/cancel
+        patch :cancel
+      end
+    end
+    resources :schools, only: [ :index, :new, :create, :edit, :update, :destroy ]
+  end
+
+
+  #------------------------------------------
   # 'namespace :api' – all routes defined within this namespace are automatically prefixed with /api
   namespace :api do
     # API versioning is the practice of assigning version numbers (e.g., `v1`, `v2`, `v3`) to different versions

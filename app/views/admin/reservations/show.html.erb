@@ -1,0 +1,60 @@
+<!-- ============================================================== -->
+<!-- ADMIN - PODGLĄD REZERWACJI -->
+<!-- ============================================================== -->
+
+<div style="max-width: 700px; margin: 0 auto;">
+  
+  <a href="<%= admin_reservations_path %>" style="display: inline-flex; align-items: center; gap: 6px; color: #6366f1; text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 20px;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    </svg>
+    Powrót do listy rezerwacji
+  </a>
+
+  <div style="background: white; border-radius: 16px; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0;">Szczegóły rezerwacji</h1>
+        <div style="margin-top: 8px;">
+          <span style="display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; font-size: 13px; font-weight: 500; background: <%= @reservation.status == 'confirmed' ? '#dcfce7' : @reservation.status == 'pending' ? '#fef3c7' : '#fee2e2' %>; color: <%= @reservation.status == 'confirmed' ? '#166534' : @reservation.status == 'pending' ? '#92400e' : '#991b1b' %>;">
+            <%= @reservation.status == 'confirmed' ? '✅ Potwierdzona' : @reservation.status == 'pending' ? '⏳ Oczekuje' : '❌ Anulowana' %>
+          </span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <% if @reservation.pending? %>
+          <%= button_to "✅ Potwierdź", confirm_admin_reservation_path(@reservation), method: :patch, style: "padding: 8px 16px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;" %>
+        <% elsif @reservation.confirmed? %>
+          <%= button_to "❌ Anuluj", cancel_admin_reservation_path(@reservation), method: :patch, style: "padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;" %>
+        <% end %>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div style="background: #f8fafc; border-radius: 10px; padding: 16px;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Użytkownik</div>
+        <div style="font-size: 16px; color: #0f172a; margin-top: 4px;"><%= @reservation.user.first_name %> <%= @reservation.user.last_name %></div>
+        <div style="font-size: 14px; color: #64748b;"><%= @reservation.user.email %></div>
+      </div>
+      <div style="background: #f8fafc; border-radius: 10px; padding: 16px;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Kurs</div>
+        <div style="font-size: 16px; color: #0f172a; margin-top: 4px;"><%= @reservation.schedule.course.name %></div>
+        <div style="font-size: 14px; color: #64748b;">Nauczyciel: <%= @reservation.schedule.teacher&.first_name || 'Brak' %></div>
+      </div>
+      <div style="background: #f8fafc; border-radius: 10px; padding: 16px;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Termin</div>
+        <div style="font-size: 16px; color: #0f172a; margin-top: 4px;"><%= @reservation.schedule.weekday_name %></div>
+        <div style="font-size: 14px; color: #64748b;"><%= @reservation.schedule.start_time.strftime("%H:%M") %> - <%= @reservation.schedule.end_time.strftime("%H:%M") %></div>
+      </div>
+      <div style="background: #f8fafc; border-radius: 10px; padding: 16px;">
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Data utworzenia</div>
+        <div style="font-size: 16px; color: #0f172a; margin-top: 4px;"><%= @reservation.created_at.strftime("%d.%m.%Y %H:%M") %></div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+      <%= link_to "🔙 Powrót", admin_reservations_path, style: "flex: 1; text-align: center; padding: 12px; background: #f1f5f9; color: #64748b; border-radius: 10px; text-decoration: none; font-weight: 500; transition: all 0.2s ease;" %>
+    </div>
+  </div>
+</div>

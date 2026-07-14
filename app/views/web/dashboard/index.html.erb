@@ -1,12 +1,9 @@
-<!-- ============================================================== -->
-<!-- 1. POWITANIE -->
-<!-- ============================================================== -->
-
 <div style="margin-bottom: 28px;">
   <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
     Dzień dobry, <%= current_user.first_name %>! 👋
   </h1>
   <p style="color: #64748b; font-size: 16px;">
+    <!-- Display a message based on the number of today s reservations. If there are any, show the count; otherwise, display a friendly message. -->  
     <% if @today_reservations > 0 %>
       Masz dziś <strong style="color: #6366f1;"><%= @today_reservations %></strong> zajęcia.
     <% else %>
@@ -15,13 +12,11 @@
   </p>
 </div>
 
-<!-- ============================================================== -->
-<!-- 2. STATYSTYKI - 4 KAFELKI -->
-<!-- ============================================================== -->
+<!-- Statistics  -->
 
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;">
   
-  <!-- Kafelek 1: Rezerwacje -->
+  <!-- First block from left - Reservation -->
   <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     <div style="display: flex; align-items: center; gap: 12px;">
       <div style="width: 44px; height: 44px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -36,7 +31,7 @@
     </div>
   </div>
   
-  <!-- Kafelek 2: Dzisiaj -->
+  <!-- Second block from left - Reservations today -->
   <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     <div style="display: flex; align-items: center; gap: 12px;">
       <div style="width: 44px; height: 44px; border-radius: 10px; background: #dbeafe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -51,7 +46,7 @@
     </div>
   </div>
   
-  <!-- Kafelek 3: Ukończone -->
+  <!-- Third block from left - Completed reservations -->
   <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     <div style="display: flex; align-items: center; gap: 12px;">
       <div style="width: 44px; height: 44px; border-radius: 10px; background: #dcfce7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -66,7 +61,7 @@
     </div>
   </div>
   
-  <!-- Kafelek 4: Wydano -->
+  <!-- Fourth block from left - Amount spent -->
   <div style="background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     <div style="display: flex; align-items: center; gap: 12px;">
       <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -75,30 +70,34 @@
         </svg>
       </div>
       <div>
-        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;"><%= number_to_currency(@total_spent, unit: "zł", format: "%n %u") %></div>
+        <div style="font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2;">
+          <!-- Display the total amount spent by the user in currency format. The number_to_currency helper formats the @total_spent variable as a currency string with "zł" as the unit and places the unit after the number. -->
+          <%= number_to_currency(@total_spent, unit: "zł", format: "%n %u") %>
+        </div>
         <div style="font-size: 13px; color: #64748b;">Wydano</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- KALENDARZ + NADCHODZĄCE ZAJĘCIA -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-  
-  <!-- KALENDARZ -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">  
+  <!-- Calendar -->
 <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2 style="font-size: 18px; font-weight: 600; color: #0f172a; margin: 0;">
+      <!-- Display the current month and year in a human-readable format. The @current_date variable is expected to be a Date object representing the current date. The strftime method formats the date to show the full month name and year. -->
       <%= @current_date.strftime("%B %Y") %>
     </h2>
     <div style="display: flex; gap: 8px;">
+      <!-- Navigation buttons for changing the month in the calendar. The links update the month and year parameters in the URL query string to navigate to the previous or next month -->
       <a href="?month=<%= @month - 1 %>&year=<%= @year %>" style="background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 16px; text-decoration: none; color: #0f172a;">‹</a>
       <a href="?month=<%= @month + 1 %>&year=<%= @year %>" style="background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 16px; text-decoration: none; color: #0f172a;">›</a>
     </div>
   </div>
   
-  <!-- Nagłówki dni tygodnia -->
+  <!-- Headers for names of week -->
   <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px;">
+    <!-- Loop through an array of weekday names and display each one in a grid cell-->
     <% ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"].each do |day| %>
       <div style="text-align: center; font-size: 12px; font-weight: 600; color: #94a3b8; padding: 4px 0;">
         <%= day %>
@@ -106,16 +105,15 @@
     <% end %>
   </div>
   
-  <!-- Dni miesiąca -->
+  <!-- Days of the month -->
   <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;" id="calendar-grid">
+    <!-- Calculate the start and end dates for the calendar grid. The grid will display days from the start of the week containing the first day of the month to the end of the week containing the last day of the month. -->  
     <% 
       today = Date.today
       start_of_month = @current_date.beginning_of_month
       end_of_month = @current_date.end_of_month
       start_date = start_of_month.beginning_of_week(:monday)
       end_date = end_of_month.end_of_week(:monday)
-      
-      # Pobierz dni z rezerwacjami
       reservation_days = current_user.reservations.confirmed.joins(:schedule).pluck(:created_at).map(&:to_date).compact
     %>
     
@@ -137,7 +135,7 @@
     <% end %>
   </div>
   
-  <!-- Legenda -->
+  <!-- Legend -->
   <div style="display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
     <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b;">
       <span style="display: inline-block; width: 12px; height: 12px; background: #dbeafe; border-radius: 4px;"></span>
@@ -150,7 +148,7 @@
   </div>
 </div>
   
-  <!-- NADCHODZĄCE ZAJĘCIA -->
+  <!-- Incomming classes -->
   <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 24px; height: 24px; color: #6366f1;">
@@ -161,7 +159,7 @@
         <%= @upcoming&.count || 0 %>
       </span>
     </div>
-    
+    <!-- Display upcoming reservations if any exist. If there are no upcoming reservations, show a message indicating that there are no upcoming classes. -->
     <% if @upcoming&.any? %>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <% @upcoming.each do |res| %>
@@ -171,7 +169,7 @@
                 <div style="font-weight: 600; color: #0f172a; font-size: 15px;">
                   <%= res.schedule.course.name %>
                 </div>
-                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 4px; font-size: 13px; color: #64748b;">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 4px; font-size: 13px; color: #64748b;">               
                   <span>📅 <%= res.schedule.weekday_name %></span>
                   <span>🕐 <%= res.schedule.start_time.strftime("%H:%M") %></span>
                   <span>🏫 <%= res.schedule.room %></span>
@@ -192,7 +190,7 @@
   </div>
 </div>
 
-<!-- KARTA: Twoje rezerwacje -->
+<!-- Users reservation cart -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
   <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">

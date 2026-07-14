@@ -1,0 +1,112 @@
+<!-- ============================================================== -->
+<!-- ADMIN - NOWY KURS -->
+<!-- ============================================================== -->
+
+<div style="max-width: 700px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 28px;">
+    <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
+      ➕ Nowy kurs
+    </h1>
+    <p style="color: #64748b; font-size: 16px;">
+      Utwórz nowy kurs w systemie
+    </p>
+  </div>
+
+  <div style="background: white; border-radius: 16px; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    
+    <% if @course.errors.any? %>
+      <div style="background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px;">
+        <ul style="margin: 0; padding-left: 20px;">
+          <% @course.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @course, url: admin_courses_path, method: :post, local: true do |f| %>
+      
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Nazwa kursu *</label>
+        <%= f.text_field :name, 
+            placeholder: "np. Ruby on Rails - Podstawy",
+            required: true,
+            style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Opis</label>
+        <%= f.text_area :description, 
+            placeholder: "Opisz czego nauczy się student...",
+            rows: 5,
+            style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc; font-family: inherit; resize: vertical;" %>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <div class="form-group">
+          <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Poziom</label>
+          <%= f.select :level, 
+              options_for_select([['Beginner', 'beginner'], ['Intermediate', 'intermediate'], ['Advanced', 'advanced']], @course.level),
+              { include_blank: 'Wybierz poziom' },
+              style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+        </div>
+
+        <div class="form-group">
+          <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Kategoria</label>
+          <%= f.select :category, 
+              options_for_select([['Programowanie', 'programming'], ['Design', 'design'], ['Biznes', 'business'], ['Języki', 'languages'], ['Marketing', 'marketing']], @course.category),
+              { include_blank: 'Wybierz kategorię' },
+              style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <div class="form-group">
+          <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Cena (zł)</label>
+          <%= f.number_field :price, 
+              step: 0.01,
+              placeholder: "299.99",
+              style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+        </div>
+
+        <div class="form-group">
+          <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Czas trwania (h)</label>
+          <%= f.number_field :duration, 
+              placeholder: "20",
+              style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+        </div>
+
+        <div class="form-group">
+          <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Max studentów</label>
+          <%= f.number_field :max_students, 
+              placeholder: "15",
+              style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <div class="form-group">
+          <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Szkoła</label>
+          <%= f.collection_select :school_id, School.all, :id, :name, 
+              { include_blank: 'Wybierz szkołę' },
+              style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+        </div>
+
+        <div class="form-group">
+          <label style="display: block; font-weight: 500; margin-bottom: 6px; color: #334155; font-size: 14px;">Nauczyciel</label>
+          <%= f.collection_select :teacher_id, User.where(role: 'teacher'), :id, :email, 
+              { include_blank: 'Wybierz nauczyciela' },
+              style: "width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s ease; background: #f8fafc;" %>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+        <%= f.submit "💾 Utwórz kurs", 
+            style: "flex: 1; padding: 14px; background: #6366f1; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" %>
+        <%= link_to "Anuluj", admin_courses_path, 
+            style: "padding: 14px 20px; background: #f1f5f9; color: #64748b; border-radius: 10px; text-decoration: none; font-weight: 500; transition: all 0.2s ease;" %>
+      </div>
+    <% end %>
+  </div>
+</div>

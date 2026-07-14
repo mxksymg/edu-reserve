@@ -1,0 +1,82 @@
+<!-- ============================================================== -->
+<!-- ADMIN - LISTA UŻYTKOWNIKÓW -->
+<!-- ============================================================== -->
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+  <div>
+    <h1 style="font-size: 28px; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px;">
+      👤 Użytkownicy
+    </h1>
+    <p style="color: #64748b; font-size: 16px;">
+      Zarządzaj wszystkimi użytkownikami systemu
+    </p>
+  </div>
+  <div style="font-size: 14px; color: #64748b; background: #f1f5f9; padding: 6px 16px; border-radius: 9999px;">
+    <%= @users.count %> użytkowników
+  </div>
+</div>
+
+<!-- ===== LISTA UŻYTKOWNIKÓW ===== -->
+<div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow-x: auto;">
+  
+  <% if @users.any? %>
+    <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+      <thead>
+        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+          <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Użytkownik</th>
+          <th style="padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Email</th>
+          <th style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Rola</th>
+          <th style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+          <th style="padding: 12px 16px; text-align: center; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr style="border-bottom: 1px solid #f1f5f9; hover:background: #f8fafc;">
+            <td style="padding: 12px 16px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #6366f1; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                  <%= user.first_name&.first&.upcase || "U" %>
+                </div>
+                <div>
+                  <div style="font-weight: 500; color: #0f172a;"><%= user.first_name %> <%= user.last_name %></div>
+                  <div style="font-size: 12px; color: #94a3b8;">Dołączył: <%= user.created_at.strftime("%d.%m.%Y") %></div>
+                </div>
+              </div>
+            </td>
+            <td style="padding: 12px 16px; word-wrap: break-word; word-break: break-word;">
+              <div style="font-size: 14px; color: #64748b;"><%= user.email %></div>
+            </td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span style="display: inline-block; padding: 2px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: <%= user.role == 'admin' ? '#eef2ff' : user.role == 'teacher' ? '#dbeafe' : '#f1f5f9' %>; color: <%= user.role == 'admin' ? '#6366f1' : user.role == 'teacher' ? '#2563eb' : '#64748b' %>;">
+                  <%= user.role&.capitalize || 'Student' %>
+                </span>
+                <% if user == current_user %>
+                  <span style="font-size: 10px; color: #94a3b8; background: #f1f5f9; padding: 1px 8px; border-radius: 9999px;">(Ty)</span>
+                <% end %>
+              </div>
+            </td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <span style="display: inline-block; padding: 2px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: <%= user.active ? '#dcfce7' : '#fee2e2' %>; color: <%= user.active ? '#166534' : '#991b1b' %>;">
+                <%= user.active ? '✅ Aktywny' : '❌ Nieaktywny' %>
+              </span>
+            </td>
+            <td style="padding: 12px 16px; text-align: center;">
+              <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                <%= link_to "👁️", admin_user_path(user), style: "padding: 4px 8px; background: #f1f5f9; color: #64748b; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.2s ease;" %>
+                <%= link_to "✏️", edit_admin_user_path(user), style: "padding: 4px 8px; background: #f1f5f9; color: #64748b; border-radius: 6px; text-decoration: none; font-size: 14px; transition: all 0.2s ease;" %>
+                
+                <% if user != current_user %>
+                  <%= button_to "🗑️", admin_user_path(user), method: :delete, style: "padding: 4px 8px; background: #fee2e2; color: #991b1b; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;", data: { confirm: "Na pewno chcesz usunąć tego użytkownika?" } %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p style="text-align: center; padding: 32px 0; color: #94a3b8;">Brak użytkowników</p>
+  <% end %>
+</div>
