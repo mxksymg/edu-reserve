@@ -85,4 +85,4 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 gem "kaminari"
-gem "will_paginate", "~> 3.3"
+gem "will_paginate", "~> 4.0"
